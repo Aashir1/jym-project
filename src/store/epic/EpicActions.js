@@ -76,7 +76,7 @@ export default class EpicActions {
         return action$.ofType(actionTypes.SYNC_DATA_PROGRESS)
             .switchMap(({payload}) => {
                 return Observable.ajax({
-                    url: `https://api.virtuagym.com/api/v1/club/26147/member?api_key=3fqoM6D9Lbz1ftGPvrMZg9YfFJW9s1noOAeYg3PBkC&club_secret=CS-26147-ACCESS-vrwzgdRxUaPvTcNGkKVgiPoYs&sync_from=[payload]`,
+                    url: `https://api.virtuagym.com/api/v1/club/26147/member?api_key=3fqoM6D9Lbz1ftGPvrMZg9YfFJW9s1noOAeYg3PBkC&club_secret=CS-26147-ACCESS-vrwzgdRxUaPvTcNGkKVgiPoYs&sync_from=[${payload}]`,
                     method: 'GET',
                     async: true,
                     crossDomain: true,
