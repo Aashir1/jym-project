@@ -5,6 +5,7 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import DBActions from '../../store/action/DBActions';
 import Service from '../../Service';
+import Delete from '@material-ui/icons/Delete';
 let { state } = Service;
 const styles = {
     tableDiv: {
@@ -26,10 +27,12 @@ class AddUser extends Component {
         let { dataObj, inventory, currentUser } = this.props;
         this.allUsers = [];
         for (let i in dataObj) {
+            console.log('found User: ', dataObj[i])
             if (dataObj[i].type == 'member') {
                 this.allUsers.push(dataObj[i]);
             }
         }
+        console.log('inside Constructor: ');
         this.state = {
             allUsers: this.allUsers,
             firstName: '',
@@ -37,6 +40,20 @@ class AddUser extends Component {
             imageUrl: null,
             rfid_tag: '',
             currentUser
+        }
+    }
+    componentWillReceiveProps(nextProps) {
+        console.log('componentWillrecive: ', nextProps);
+        let { dataObj, inventory, currentUser } = this.props;
+        let allUsers = [];
+        if (this.props !== nextProps) {
+            for (let i in dataObj) {
+                if (dataObj[i].type == 'member') {
+                    console.log(' incomponentWillrecive: ', nextProps);
+                    allUsers.push(dataObj[i]);
+                }
+            }
+            this.setState({ allUsers });
         }
     }
     addUser = () => {
@@ -61,8 +78,13 @@ class AddUser extends Component {
         }
     }
 
+    deleteItem = (id) => {
+        this.props.deleteItem({ cat: 'user', id })
+    }
+
     render() {
         let { dataObj, inventory, currentUser } = this.props;
+        console.log('this.state.allUsers: ', this.state.allUsers);
         return (
             <Navbar style={styles.tableParent} history={this.props.history} name={currentUser ? this.state.currentUser.name : 'UserName'} imageUrl={currentUser ? this.state.currentUser.imageUrl : null}>
                 <div style={styles.tableParent}>
@@ -132,8 +154,13 @@ class AddUser extends Component {
                                         <div style={{ display: 'flex', alignSelf: 'left', width: '50%' }}>
                                             {data.name}
                                         </div>
-                                        <div style={{ width: '50%' }}>
-                                            {data.rfid_tag}
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '50%' }}>
+                                            <div>
+                                                {data.rfid_tag}
+                                            </div>
+                                            <div style={{ marginLeft: '15px' }}>
+                                                <Delete onClick={() => this.deleteItem(data.rfid_tag)} style={{ cursor: 'pointer', color: '#c0392b' }} />
+                                            </div>
                                         </div>
                                     </div>
                                 )
@@ -148,6 +175,7 @@ class AddUser extends Component {
 let mapStateToProps = (state) => {
     console.log(state);
     return {
+        state,
         dataObj: state.dbReducer.dataObj,
         inventory: state.dbReducer.inventory,
         currentUser: state.dbReducer.currentUser
@@ -157,7 +185,8 @@ let mapDispatchToProps = (dispatch) => {
     return {
         setCurrentUser: (obj) => dispatch(DBActions.setCurrentUser(obj)),
         setDataObj: (obj) => dispatch(DBActions.setDataObj(obj)),
-        setInventory: (obj) => dispatch(DBActions.setInventory(obj))
+        setInventory: (obj) => dispatch(DBActions.setInventory(obj)),
+        deleteItem: (obj) => dispatch(DBActions.deleteItem(obj))
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(AddUser);

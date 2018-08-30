@@ -74,7 +74,7 @@ export default class EpicActions {
     static syncData(action$) {
         let multipathForStore = {};
         return action$.ofType(actionTypes.SYNC_DATA_PROGRESS)
-            .switchMap(({payload}) => {
+            .switchMap(({ payload }) => {
                 return Observable.ajax({
                     url: `https://api.virtuagym.com/api/v1/club/26147/member?api_key=3fqoM6D9Lbz1ftGPvrMZg9YfFJW9s1noOAeYg3PBkC&club_secret=CS-26147-ACCESS-vrwzgdRxUaPvTcNGkKVgiPoYs&sync_from=[${payload}]`,
                     method: 'GET',
@@ -108,6 +108,21 @@ export default class EpicActions {
                     })
                     .catch(err => {
                         return Observable.of({ type: actionTypes.SYNC_DATA_FAIL, payload: err.message })
+                    })
+            })
+    }
+
+    static deleteItem($action) {
+        return $action.ofType(actionTypes.DELETE_LOCKER_PROGRESS)
+            .switchMap(({ payload }) => {
+                return Observable.fromPromise(FirebaseDB.deleteItem(payload))
+                    .map((data) => {
+                        return {
+                            type: null
+                        }
+                    })
+                    .catch(err => {
+                        return Observable.of({ type: actionTypes.DELETE_LOCKER_FAIL, payload: err.message });
                     })
             })
     }

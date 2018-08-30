@@ -5,6 +5,8 @@ import Service from '../../Service';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import DBActions from '../../store/action/DBActions';
+import Delete from '@material-ui/icons/Delete';
+import IconButton from '@material-ui/core/IconButton';
 import './index.css';
 let state = Service.state;
 
@@ -47,6 +49,22 @@ class Lockers extends Component {
             lockerID: ''
         }
     }
+    componentWillReceiveProps(nextProps) {
+        if (this.props !== nextProps) {
+            let { dataObj, inventory, currentUser } = nextProps;
+            let lockersArray = [];
+            this.lockers = {};
+            for (let i in dataObj) {
+                if (dataObj[i].type == 'locker') {
+                    this.lockers[i] = dataObj[i];
+                }
+            }
+            if (dataObj) {
+                lockersArray = Object.values(dataObj).filter((data) => data.type == 'locker');
+            }
+            this.setState({ lockersArray: lockersArray });
+        }
+    }
     addLocker = () => {
         let { lockerName, lockers, lockerID } = this.state;
         let { dataObj, currentUser, inventory } = this.props;
@@ -79,6 +97,11 @@ class Lockers extends Component {
         console.log(state.lockers);
     }
 
+
+    deleteItem = (id) => {
+        console.log('its work');
+        this.props.deleteItem({ cal: 'locker', id });
+    }
     render() {
         console.log('state: ', state.inventory);
         let { dataObj, currentUser, inventory } = this.props;
@@ -156,16 +179,27 @@ class Lockers extends Component {
                                                     </div>
                                                     : null
                                             }
-                                            <div>
-                                                {`ID: ${data.name}`}
-                                            </div>
-                                            <div>
-                                                {
-                                                    data.isAvailable ?
-                                                        <p>Available</p>
-                                                        :
-                                                        <p>Not Available</p>
-                                                }
+                                            <div style={{ display: 'flex' }}>
+                                                <div style={{ textAlign: 'center' }}>
+                                                    <div>
+                                                        {`ID: ${data.name}`}
+                                                    </div>
+                                                    <div>
+                                                        {
+                                                            data.isAvailable ?
+                                                                <p>Available</p>
+                                                                :
+                                                                <p>Not Available</p>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div style={{
+
+                                                }}>
+                                                    <IconButton onClick={() => this.deleteItem(data.rfid_tag)}>
+                                                        <Delete style={{ cursor: 'pointer', color: '#c0392b' }} />
+                                                    </IconButton>
+                                                </div>
                                             </div>
                                         </div>
                                     )
@@ -181,6 +215,7 @@ class Lockers extends Component {
 let mapStateToProps = (state) => {
     console.log(state);
     return {
+        state,
         dataObj: state.dbReducer.dataObj,
         inventory: state.dbReducer.inventory,
         currentUser: state.dbReducer.currentUser
@@ -190,7 +225,8 @@ let mapDispatchToProps = (dispatch) => {
     return {
         setCurrentUser: (obj) => dispatch(DBActions.setCurrentUser(obj)),
         setDataObj: (obj) => dispatch(DBActions.setDataObj(obj)),
-        setInventory: (obj) => dispatch(DBActions.setInventory(obj))
+        setInventory: (obj) => dispatch(DBActions.setInventory(obj)),
+        deleteItem: (id) => dispatch(DBActions.deleteItem(id))
     }
 }
 

@@ -1,6 +1,6 @@
 import { combineReducers, createStore, applyMiddleware } from 'redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
-import {createLogger} from 'redux-logger';
+import { createLogger } from 'redux-logger';
 
 import EpicActions from './epic/EpicActions';
 import AuthEpic from './epic/AuthEpic';
@@ -19,11 +19,12 @@ export const rootEpic = combineEpics(
     EpicActions.setDataObj,
     EpicActions.setInventory,
     EpicActions.pushHistory,
-    EpicActions.syncData
+    EpicActions.syncData,
+    EpicActions.deleteItem
 );
 
 const epicMiddleware = createEpicMiddleware(rootEpic);
 
-const createStoreWithMiddleware = applyMiddleware(epicMiddleware,loggerMiddleware);
+const createStoreWithMiddleware = applyMiddleware(epicMiddleware, loggerMiddleware);
 
 export let store = createStore(rootReducer, createStoreWithMiddleware);

@@ -61,6 +61,22 @@ function DBReducer(state = intialState, action) {
             return Object.assign({}, state, { loadDataIsProgress: false, dataObj: { ...state.dataObj, ...action.payload } });
         case actionTypes.SYNC_DATA_FAIL:
             return Object.assign({}, state, { loadDataIsProgress: false, errorMessage: action.payload });
+
+
+        case actionTypes.DELETE_LOCKER_PROGRESS:
+            let { dataObj, inventory } = state;
+            if (action.payload.cat == 'inventory') {
+                delete dataObj[action.payload.id];
+                delete inventory[action.payload.id];
+                return Object.assign({}, state, { dataObj, inventory });
+            }
+            console.log('cloneObj: ', dataObj)
+            delete dataObj[action.payload.id];
+            return Object.assign({}, state, { dataObj });
+        // case actionTypes.DELETE_LOCKER_SUCCEED:
+        // return Object.assign({})
+        case actionTypes.DELETE_LOCKER_FAIL:
+            return Object.assign({}, state, { errorMessage: action.payload });
         default:
             return state;
     }

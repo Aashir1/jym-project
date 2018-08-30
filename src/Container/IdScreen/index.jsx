@@ -104,7 +104,7 @@ class IdScreen extends Component {
 
     syncData = () => {
         console.log('lastSync: ', this.props.lastSync)
-        if (this.props.lastSync.length !== 0)
+        if (this.props.lastSync)
             this.props.syncData(this.props.lastSync)
         // else{
         //     alert('')

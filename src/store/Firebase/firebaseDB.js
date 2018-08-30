@@ -10,7 +10,7 @@ export default class FirebaseDB {
             console.log('inside promise');
             fire.once('value', (snapshot) => {
                 console.log('snapshot.val(): ', snapshot.val())
-                res({ dataObj: snapshot.val().dataObj, inventory: snapshot.val().inventory, lastSync: snapshot.val().lastSync });
+                res({ dataObj: toObject(snapshot.val().dataObj), inventory: snapshot.val().inventory, lastSync: snapshot.val().lastSync });
             })
         })
     }
@@ -48,6 +48,25 @@ export default class FirebaseDB {
                             res();
                         })
                 })
+        })
+    }
+    static deleteItem(obj) {
+        return new Promise((res, rej) => {
+            if (obj.cat == 'inventory') {
+                fire.child(`dataObj/${obj.id}`).remove()
+                    .then((data) => {
+                        fire.child(`inventory/${obj.id}`).remove()
+                            .then(() => {
+                                res(true);
+                            })
+                    })
+            }
+            else {
+                fire.child(`dataObj/${obj.id}`).remove()
+                    .then((data) => {
+                        res(true);
+                    })
+            }
         })
     }
 }

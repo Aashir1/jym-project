@@ -6,6 +6,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import DBActions from '../../store/action/DBActions';
+import Delete from '@material-ui/icons/Delete';
 import Service from '../../Service';
 let { state } = Service;
 const styles = {
@@ -39,6 +40,19 @@ class Products extends Component {
             consumeable: 'none',
             productQty: '',
             productId: ''
+        }
+    }
+    componentWillReceiveProps(nextProps) {
+        if (this.props !== nextProps) {
+            let { dataObj, inventory, currentUser } = nextProps;
+            console.log('nextPorps/*/*/*/*/*/*/*/: ', nextProps)
+            let inventoryArray = [];
+            for (let i in inventory) {
+                console.log(i);
+                console.log('inventory[i]: ', inventory[i]);
+                inventoryArray.push({ key: i, data: inventory[i] });
+            }
+            this.setState({ inventoryArray });
         }
     }
     addProduct = () => {
@@ -80,6 +94,10 @@ class Products extends Component {
     handleChange = event => {
         this.setState({ [event.target.name]: event.target.value });
     };
+
+    deleteItem = (rfid_tag) => {
+        this.props.deleteItem({ id: rfid_tag, cat: 'inventory' });
+    }
     render() {
         let { dataObj, inventory, currentUser } = this.props;
         console.log('this.state.inventoryArray: ', this.state.inventoryArray);
@@ -154,7 +172,6 @@ class Products extends Component {
                                     <div key={key} style={{
                                         display: 'flex',
                                         width: '60vw',
-                                        justifyContent: 'space-between',
                                         paddingTop: '13px',
                                         paddingBottom: '13px',
                                         backgroundColor: i % 2 === 0 ? '#ecf0f1' : '#bdc3c7',
@@ -162,11 +179,20 @@ class Products extends Component {
                                         padding: '15px'
                                     }}
                                     >
-                                        <div >
-                                            {data.name}
-                                        </div>
-                                        <div>
-                                            {data.qty}
+                                        <div style={{ width: '100%' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <div >
+                                                    {data.name}
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                    <div>
+                                                        {data.qty}
+                                                    </div>
+                                                    <div style={{ marginLeft: '15px' }}>
+                                                        <Delete onClick={() => this.deleteItem(data.rfid_tag)} style={{ cursor: 'pointer', color: '#c0392b' }} />
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 )
@@ -181,6 +207,7 @@ class Products extends Component {
 let mapStateToProps = (state) => {
     console.log(state);
     return {
+        state,
         dataObj: state.dbReducer.dataObj,
         inventory: state.dbReducer.inventory,
         currentUser: state.dbReducer.currentUser
@@ -190,7 +217,8 @@ let mapDispatchToProps = (dispatch) => {
     return {
         setCurrentUser: (obj) => dispatch(DBActions.setCurrentUser(obj)),
         setDataObj: (obj) => dispatch(DBActions.setDataObj(obj)),
-        setInventory: (obj) => dispatch(DBActions.setInventory(obj))
+        setInventory: (obj) => dispatch(DBActions.setInventory(obj)),
+        deleteItem: (obj) => dispatch(DBActions.deleteItem(obj))
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Products);

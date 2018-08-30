@@ -2,6 +2,12 @@ import actionTypes from '../actionTypes';
 
 
 class DBActions {
+    static deleteItem(obj) {
+        return {
+            type: actionTypes.DELETE_LOCKER_PROGRESS,
+            payload: obj
+        }
+    }
     static loadData() {
         return {
             type: actionTypes.LOAD_DATA_PROGRESS
