@@ -20,7 +20,7 @@ function DBReducer(state = intialState, action) {
         case actionTypes.LOAD_DATA_PROGRESS:
             return Object.assign({}, state, { loadDataIsProgress: true });
         case actionTypes.LOAD_DATA_SUCCEED:
-            return Object.assign({}, state, { loadDataIsProgress: false, dataObj: action.payload.dataObj, inventory: action.payload.inventory, lastSync: action.payload.lastSync });
+            return Object.assign({}, state, { loadDataIsProgress: false, dataObj: action.payload && action.payload.dataObj || {}, inventory: action.payload && action.payload.inventory || {}, lastSync: action.payload.lastSync });
         case actionTypes.LOAD_DATA_FAIL:
             return Object.assign({}, state, { loadDataIsProgress: false, errorMessage: action.payload });
 

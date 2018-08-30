@@ -39,7 +39,9 @@ class Lockers extends Component {
                 this.lockers[i] = dataObj[i];
             }
         }
-        this.lockersArray = Object.values(dataObj).filter((data) => data.type == 'locker');
+        if (dataObj) {
+            this.lockersArray = Object.values(dataObj).filter((data) => data.type == 'locker');
+        }
 
         this.state = {
             lockersArray: this.lockersArray,
@@ -68,6 +70,7 @@ class Lockers extends Component {
     addLocker = () => {
         let { lockerName, lockers, lockerID } = this.state;
         let { dataObj, currentUser, inventory } = this.props;
+        
         // lockerID = Number(lockerID);
         let flag = false;
         if (lockerName.trim() !== "") {
