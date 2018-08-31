@@ -26,6 +26,8 @@ class Home extends Component {
     constructor(props) {
         super(props);
         this.inventoryArray = [];
+        this.isRFID = JSON.parse(localStorage.getItem('isRFID'));
+        console.log('isrfid: ', this.isRFID)
         let { dataObj, currentUser, inventory } = this.props;
         this.findCurrentUserLocker = null;
         for (let i in dataObj) {
@@ -54,15 +56,49 @@ class Home extends Component {
         e.preventDefault();
         let { inventoryId, userObj, tabState } = this.state;
         let { dataObj, currentUser, inventory } = this.props;
+        let data = {}, isFound = true;
+        let userInput = inventoryId;
+        console.log('checking*-*-*-*-*-*-**/*/*/*-*-*-*-*: ', dataObj[userInput.toString()]);
+        console.log('userInput: ', userInput)
 
         this.lockerCurrentInfo = dataObj[currentUser.lockerId];
 
         if (tabState == 'Tag In') {
-            if (inventoryId.trim() !== '' && inventoryId > 0) {
-                let userInput = inventoryId;
+            if (inventoryId.trim() !== '') {
+                if (this.isRFID == false) {
+                    if (dataObj[userInput]) {
+                        data = dataObj[userInput]
+                    } else {
+                        console.log('userInput when rfid false', dataObj[userInput])
+                        for (let i in dataObj) {
+                            console.log(dataObj[i].member_id)
+                            console.log(dataObj[i].member_id == userInput)
+                            if (dataObj[i].member_id == userInput) {
+                                data = dataObj[i];
+                                isFound = false
+                            }
+                        }
+                    }
+                } else {
+                    if (dataObj[userInput] == undefined) {
+                        for (let i in dataObj) {
+                            console.log(dataObj[i].member_id)
+                            console.log(dataObj[i].member_id == userInput)
+                            if (dataObj[i].member_id == userInput) {
+                                data = dataObj[i];
+                                isFound = false
+                            }
+                        }
+                    } else {
+                        console.log('userInput', userInput)
+                        console.log('for rfid: ', dataObj[userInput])
+                        data = dataObj[userInput];
+                        isFound = false;
+                    }
+                }
                 userInput = userInput;
-                let data = dataObj[userInput], isFound = false;
                 if (data) {
+                    console.log("Starting Check Type: TTTTTTTTTTTTTTTTTT ", data)
                     if (data.type == 'member') {
                         this.props.history.replace('/');
                         return;
@@ -281,7 +317,15 @@ class Home extends Component {
                                     {`Alocated to: ${currentUser.name}`}
                                 </div>
                                 <div>
-                                    {`ID: ${dataObj[currentUser.lockerId].name}`}
+                                    <p>
+                                        {`NAME: ${dataObj[currentUser.lockerId].name}`}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p>
+                                        {`ID: ${dataObj[currentUser.lockerId].rfid_tag}`}
+                                    </p>
+
                                 </div>
                             </div>
                             :

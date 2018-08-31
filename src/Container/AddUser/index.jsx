@@ -39,7 +39,8 @@ class AddUser extends Component {
             lastName: '',
             imageUrl: null,
             rfid_tag: '',
-            currentUser
+            currentUser,
+            member_id: ''
         }
     }
     componentWillReceiveProps(nextProps) {
@@ -58,18 +59,19 @@ class AddUser extends Component {
     }
     addUser = () => {
         let { dataObj, inventory, currentUser } = this.props;
-        let { firstName, lastName, rfid_tag, imageUrl } = this.state;
-        if (firstName.trim() !== '' && lastName.trim() !== '' && rfid_tag.trim() !== '') {
+        let { firstName, lastName, rfid_tag, imageUrl, member_id } = this.state;
+        if (firstName.trim() !== '' && lastName.trim() !== '' && rfid_tag.trim() !== '' && member_id.trim() !== '') {
             if (dataObj[rfid_tag] == undefined) {
                 dataObj[rfid_tag] = {
                     type: 'member',
                     name: `${firstName} ${lastName}`,
                     rfid_tag: rfid_tag,
+                    member_id,
                     imageUrl,
                     current: { lockerId: '', product: [], assignData: "", checkoutDate: "" },
                 }
                 this.props.setDataObj(dataObj);
-                this.setState({ allUsers: [...this.state.allUsers, dataObj[rfid_tag]], firstName: '', lastName: '', rfid_tag: '', imageUrl: null })
+                this.setState({ allUsers: [...this.state.allUsers, dataObj[rfid_tag]], firstName: '', lastName: '', rfid_tag: '', imageUrl: null, member_id: '' })
             } else {
                 alert('This ID already in use');
             }
@@ -115,6 +117,15 @@ class AddUser extends Component {
                             />
                         </div>
                         <div>
+                            <TextField
+                                label="member_id"
+                                value={this.state.member_id}
+                                type='number'
+                                onChange={(text) => this.setState({ member_id: text.target.value })}                            // onChange={this.handleChange('name')}
+                                margin="normal"
+                            />
+                        </div>
+                        <div>
                             <Button onClick={this.addUser} variant="contained" color="primary" style={{ width: '100%', marginTop: '10px' }}>
                                 Add User
                             </Button>
@@ -133,7 +144,8 @@ class AddUser extends Component {
                         padding: '15px'
                     }}>
                         <h1 style={{ width: '50%', color: '#34495e' }}>Name</h1>
-                        <h1 style={{ width: '50%', color: '#34495e' }}>UserId</h1>
+                        <h1 style={{ width: '50%', color: '#34495e' }}>Member_ID</h1>
+                        <h1 style={{ width: '50%', color: '#34495e', textAlign: 'right' }}>RFID_TAG</h1>
                     </div>
                     {
                         this.state.allUsers.map((data, i) => {
@@ -151,10 +163,18 @@ class AddUser extends Component {
                                         padding: '15px'
                                     }}
                                     >
-                                        <div style={{ display: 'flex', alignSelf: 'left', width: '50%' }}>
+                                        <div style={{ display: 'flex', alignSelf: 'left', width: '33.3%', alignItems: 'center' }}>
                                             {data.name}
                                         </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '50%' }}>
+                                        <div style={{
+                                            display: 'flex',
+                                            width: '33.3%',
+                                            justifyContent: 'center',
+                                            alignItems: 'center'
+                                        }}>
+                                            {data.member_id}
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '33.3%', }}>
                                             <div>
                                                 {data.rfid_tag}
                                             </div>

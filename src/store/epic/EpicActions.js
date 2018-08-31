@@ -85,6 +85,7 @@ export default class EpicActions {
                 })
                     .pluck('response').map(xdata => {
                         let multipath = {};
+                        console.log('xdata: ', xdata);
                         xdata.result.forEach((data, i) => {
                             if (data.rfid_tag) {
                                 data['type'] = 'member';
@@ -92,6 +93,14 @@ export default class EpicActions {
                                 data[`current`] = { assignDate: "", checkoutDate: "", lockerId: "", product: [] };
                                 multipath[`dataObj/${data.rfid_tag}/`] = data;
                                 multipathForStore[data.rfid_tag] = data;
+                            } else {
+                                let id = randomString();
+                                data['rfid_tag'] = data.member_id;
+                                data['type'] = 'member';
+                                data['name'] = `${data.firstname} ${data.lastname}`
+                                data[`current`] = { assignDate: "", checkoutDate: "", lockerId: "", product: [] };
+                                multipath[`dataObj/${data.member_id}/`] = data;
+                                multipathForStore[data.member_id] = data;
                             }
                         })
                         console.log('after forEach: ', multipath);
@@ -127,4 +136,14 @@ export default class EpicActions {
             })
     }
 
+}
+
+function randomString() {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for (var i = 0; i < 5; i++)
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
 }

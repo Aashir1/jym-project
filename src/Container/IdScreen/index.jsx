@@ -3,13 +3,17 @@ import { connect } from 'react-redux';
 import Serivce from '../../Service';
 import DBActions from '../../store/action/DBActions';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 let state = Serivce.state;
 class IdScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
             userInput: "",
+            isRFID: false,
         }
+        localStorage.setItem('isRFID', JSON.stringify(false));
         // this.timer = setInterval(function () {
         //     console.log('now function loaded');
         //     chrome.nfc.read(device, { timeout: 1000 }, function (type, ndef) {
@@ -28,12 +32,46 @@ class IdScreen extends Component {
     }
     onSubmit = (e) => {
         e.preventDefault();
-        let { data, userInput } = this.state;
+        let { data, userInput, isRFID } = this.state;
         let { dataObj, inventory, currentUser } = this.props;
-        let flag = false, currUser = {}, isCheckOut = false;
-        if (userInput.trim() !== "" && userInput > 0) {
-            userInput = userInput;
-            let data = dataObj[userInput], isFound = false;
+        let flag = false, currUser = {}, isCheckOut = false, isFound = true;
+        userInput = userInput.toString().trim();
+        console.log('userInput: ', userInput);
+        console.log('dataObj[userInput]: ', dataObj[userInput]);
+        if (userInput.trim() !== "") {
+            if (isRFID == false) {
+                if (dataObj[userInput]) {
+                    if (dataObj[userInput].type == 'locker') {
+                        data = dataObj[userInput];
+                    }
+                    if (dataObj[userInput].type == 'member') {
+                        for (let i in dataObj) {
+                            if (dataObj[i].member_id == userInput) {
+                                console.log('member Id find: ', dataObj[i]);
+                                data = dataObj[i];
+                                isFound = false;
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    console.log('userInput when rfid false', dataObj[userInput])
+                    for (let i in dataObj) {
+                        if (dataObj[i].member_id == userInput) {
+                            console.log('member Id find: ', dataObj[i]);
+                            data = dataObj[i];
+                            isFound = false;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                console.log('userInput', userInput)
+                console.log('for rfid: ', dataObj[userInput])
+                data = dataObj[userInput];
+                isFound = false;
+            }
+            console.log('before if logic: ', data);
             if (data) {
                 if (data.type == 'member') {
                     let currentUser = {
@@ -82,6 +120,8 @@ class IdScreen extends Component {
                         currentUser = null;
                         this.props.setCurrentUser(null);
                         this.setState({ userInput: '' });
+                    }else{
+                        alert('No product is selected')
                     }
                     this.props.setInventory(inventory);
                     this.props.setDataObj(dataObj);
@@ -110,6 +150,11 @@ class IdScreen extends Component {
         //     alert('')
         // }
     }
+    handleChange = event => {
+        this.setState({ [event.target.name]: event.target.value });
+        localStorage.setItem('isRFID', JSON.stringify(event.target.value));
+        console.log(event.target.value)
+    };
     render() {
         if (this.props.loadDataIsProgress) {
             return (
@@ -227,6 +272,24 @@ class IdScreen extends Component {
                                 value={this.state.userInput}
                                 onChange={(e) => this.setState({ userInput: e.target.value })}
                                 onKeyPress={this.keyPress} />
+                        </div>
+                        <div >
+                            <Select
+                                style={{
+                                    width: '20vw',
+                                    height: '40px',
+                                    marginTop: '10px'
+                                }}
+                                name='isRFID'
+                                value={this.state.isRFID}
+                                onChange={this.handleChange}
+                                inputProps={{
+                                    name: 'isRFID',
+                                }}
+                            >
+                                <MenuItem key={1} value={true}>RFID_TAG</MenuItem>
+                                <MenuItem key={2} value={false}>Member ID</MenuItem>
+                            </Select>
                         </div>
                     </form>
                 </div>

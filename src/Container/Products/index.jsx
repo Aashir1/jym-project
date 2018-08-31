@@ -159,6 +159,7 @@ class Products extends Component {
                         this.state.inventoryArray.length > 0 ?
                             <div style={styles.tableDiv}>
                                 <h2>Products</h2>
+                                <h2>ID</h2>
                                 <h2>Quantity</h2>
                             </div>
                             :
@@ -181,10 +182,21 @@ class Products extends Component {
                                     >
                                         <div style={{ width: '100%' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                <div >
+                                                <div style={{
+                                                    width: '33.3%',
+                                                    display: 'flex',
+                                                    justifyContent: 'flex-start'
+                                                }}>
                                                     {data.name}
                                                 </div>
-                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                <div style={{
+                                                    display: 'flex',
+                                                    width: '33.3%',
+                                                    justifyContent: 'center'
+                                                }}>
+                                                    {data.rfid_tag}
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', width: '33.3%', justifyContent: 'flex-end' }}>
                                                     <div>
                                                         {data.qty}
                                                     </div>

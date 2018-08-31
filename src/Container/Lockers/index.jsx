@@ -70,7 +70,7 @@ class Lockers extends Component {
     addLocker = () => {
         let { lockerName, lockers, lockerID } = this.state;
         let { dataObj, currentUser, inventory } = this.props;
-        
+
         // lockerID = Number(lockerID);
         let flag = false;
         if (lockerName.trim() !== "") {
@@ -185,7 +185,15 @@ class Lockers extends Component {
                                             <div style={{ display: 'flex' }}>
                                                 <div style={{ textAlign: 'center' }}>
                                                     <div>
-                                                        {`ID: ${data.name}`}
+                                                        <p>
+                                                            {`NAME: ${data.name}`}
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <p>
+                                                            {`ID: ${data.rfid_tag}`}
+                                                        </p>
+
                                                     </div>
                                                     <div>
                                                         {
