@@ -27,20 +27,42 @@ class AddUser extends Component {
         let { dataObj, inventory, currentUser } = this.props;
         this.allUsers = [];
         for (let i in dataObj) {
-            console.log('found User: ', dataObj[i])
             if (dataObj[i].type == 'member') {
                 this.allUsers.push(dataObj[i]);
             }
         }
-        console.log('inside Constructor: ');
+        console.log('inside Constructor: ', this.allUsers.slice(0, 50));
         this.state = {
-            allUsers: this.allUsers,
             firstName: '',
             lastName: '',
             imageUrl: null,
             rfid_tag: '',
             currentUser,
-            member_id: ''
+            member_id: '',
+            arrayLength: 50,
+            allUsers: this.allUsers.slice(0, 50),
+        }
+    }
+    componentDidMount() {
+        window.addEventListener('scroll', this.callPaging);
+    }
+    componentWillUnmount() {
+        window.removeEventListener('scroll', this.callPaging);
+    }
+    callPaging = () => {
+        let scrollTop = document.documentElement.scrollTop;
+        let scrollHeight = document.documentElement.scrollHeight;
+        let offsetHeight = document.documentElement.clientHeight;
+        let contentHeight = scrollHeight - offsetHeight;
+        if (contentHeight <= scrollTop) {
+            if (this.allUsers.slice(this.state.arrayLength + 30).indexOf(undefined) == -1) {
+                this.setState({ allUsers: this.state.allUsers.concat(this.allUsers.slice(this.state.arrayLength, this.state.arrayLength + 30)), arrayLength: this.state.arrayLength + 30 });
+            } else {
+                let lastDataIndex = this.allUsers.slice(this.state.arrayLength + 30).indexOf(undefined);
+                let sliceArray = this.allUsers.slice(this.state.arrayLength, lastDataIndex);
+                this.setState({ allUsers: [...this.state.allUsers, sliceArray] });
+
+            }
         }
     }
     componentWillReceiveProps(nextProps) {
@@ -54,24 +76,27 @@ class AddUser extends Component {
                     allUsers.push(dataObj[i]);
                 }
             }
-            this.setState({ allUsers });
+            this.setState({ allUsers: allUsers.slice(0, this.state.arrayLength) });
         }
     }
     addUser = () => {
         let { dataObj, inventory, currentUser } = this.props;
         let { firstName, lastName, rfid_tag, imageUrl, member_id } = this.state;
-        if (firstName.trim() !== '' && lastName.trim() !== '' && rfid_tag.trim() !== '' && member_id.trim() !== '') {
+        if (firstName.trim() !== '' && lastName.trim() !== '' && rfid_tag.trim() !== '') {
             if (dataObj[rfid_tag] == undefined) {
                 dataObj[rfid_tag] = {
                     type: 'member',
                     name: `${firstName} ${lastName}`,
                     rfid_tag: rfid_tag,
-                    member_id,
+                    member_id: member_id.trim() == "" ? rfid_tag : member_id,
                     imageUrl,
                     current: { lockerId: '', product: [], assignData: "", checkoutDate: "" },
                 }
                 this.props.setDataObj(dataObj);
-                this.setState({ allUsers: [...this.state.allUsers, dataObj[rfid_tag]], firstName: '', lastName: '', rfid_tag: '', imageUrl: null, member_id: '' })
+                console.log('this.state.allUsers before adding: ', this.state.allUsers);
+                this.setState({ allUsers: [...this.state.allUsers, dataObj[rfid_tag]], firstName: '', lastName: '', rfid_tag: '', imageUrl: null, member_id: '' }, () => {
+                    console.log('this.state.allUsers after adding: ', this.state.allUsers);
+                })
             } else {
                 alert('This ID already in use');
             }
@@ -111,7 +136,6 @@ class AddUser extends Component {
                             <TextField
                                 label="rfid_tag"
                                 value={this.state.rfid_tag}
-                                type='number'
                                 onChange={(text) => this.setState({ rfid_tag: text.target.value })}                            // onChange={this.handleChange('name')}
                                 margin="normal"
                             />
@@ -120,7 +144,6 @@ class AddUser extends Component {
                             <TextField
                                 label="member_id"
                                 value={this.state.member_id}
-                                type='number'
                                 onChange={(text) => this.setState({ member_id: text.target.value })}                            // onChange={this.handleChange('name')}
                                 margin="normal"
                             />

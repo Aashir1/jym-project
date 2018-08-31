@@ -116,7 +116,7 @@ class Products extends Component {
                         <div>
                             <TextField
                                 label="Product ID"
-                                type="number"
+                                // type="number"
                                 value={this.state.productId}
                                 onChange={(text) => this.setState({ productId: text.target.value })}
                                 margin="normal"

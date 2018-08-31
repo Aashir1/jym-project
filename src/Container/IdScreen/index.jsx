@@ -106,13 +106,15 @@ class IdScreen extends Component {
                         lockerId: dataObj[userInput].rfid_tag
                     }
 
-                    if (getLockerCurrentInfo.product) {
-                        getLockerCurrentInfo.product.forEach((data, i) => {
-                            console.log(data);
-                            if (!data.consumeable) {
-                                inventory[data.rfid_tag].qty += data.qty;
-                            }
-                        })
+                    if (getLockerCurrentInfo.uid) {
+                        if (getLockerCurrentInfo.product) {
+                            getLockerCurrentInfo.product.forEach((data, i) => {
+                                console.log(data);
+                                if (!data.consumeable) {
+                                    inventory[data.rfid_tag].qty += data.qty;
+                                }
+                            })
+                        }
                         alert(" Checkout of " + dataObj[userInput].name + " is Done");
                         dataObj[dataObj[userInput].current.uid].current = { lockerId: '', product: [], assignDate: "", checkoutDate: "" }
                         dataObj[userInput].isAvailable = true;
@@ -120,8 +122,6 @@ class IdScreen extends Component {
                         currentUser = null;
                         this.props.setCurrentUser(null);
                         this.setState({ userInput: '' });
-                    }else{
-                        alert('No product is selected')
                     }
                     this.props.setInventory(inventory);
                     this.props.setDataObj(dataObj);
