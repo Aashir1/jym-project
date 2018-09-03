@@ -2,6 +2,17 @@ import actionTypes from '../actionTypes';
 
 
 class DBActions {
+    static  loadLocalDBData(){
+        return{
+            type: actionTypes.LOAD_LOCALDATADB_PROGRESS
+        }
+    }
+    static setLocalDBFlag(flag){
+        return{
+            type: actionTypes.SET_LOCALDB_FLAG,
+            payload: flag
+        }
+    }
     static deleteItem(obj) {
         return {
             type: actionTypes.DELETE_LOCKER_PROGRESS,

@@ -1,6 +1,4 @@
 import actionTypes from '../actionTypes';
-import { retry } from 'rxjs/operators/retry';
-import actionType from '../actionTypes';
 
 let intialState = {
     loadDataIsProgress: false,
@@ -12,7 +10,8 @@ let intialState = {
     errorMessage: '',
     currentUser: null,
     pushHistoryData: [],
-    lastSync: ''
+    lastSync: '',
+    localDBFlag: false
 }
 
 function DBReducer(state = intialState, action) {
@@ -77,6 +76,20 @@ function DBReducer(state = intialState, action) {
         // return Object.assign({})
         case actionTypes.DELETE_LOCKER_FAIL:
             return Object.assign({}, state, { errorMessage: action.payload });
+
+
+
+        case actionTypes.SET_LOCALDB_FLAG:
+            return Object.assign({}, state, { localDBFlag: action.payload });
+
+
+        case actionTypes.LOAD_LOCALDATADB_PROGRESS:
+            return Object.assign({}, state, { loadDataIsProgress: true });
+        case actionTypes.LOAD_LOCALDATADB_SUCCEED:
+            return Object.assign({}, state, { loadDataIsProgress: false, dataObj: { ...state.dataObj, ...action.payload } });
+        case actionTypes.LOAD_LOCALDATADB_FAIL:
+            return Object.assign({}, state, { loadDataIsProgress: false, errorMessage: action.payload });
+
         default:
             return state;
     }

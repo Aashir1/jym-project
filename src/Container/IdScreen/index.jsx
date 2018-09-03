@@ -5,6 +5,8 @@ import DBActions from '../../store/action/DBActions';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
 let state = Serivce.state;
 class IdScreen extends Component {
     constructor(props) {
@@ -12,6 +14,7 @@ class IdScreen extends Component {
         this.state = {
             userInput: "",
             isRFID: false,
+            localDB: false,
         }
         localStorage.setItem('isRFID', JSON.stringify(false));
         // this.timer = setInterval(function () {
@@ -25,11 +28,13 @@ class IdScreen extends Component {
         // }, 1000);
     }
     componentDidMount() {
-        this.props.loadData();
+        // this.props.loadData();
+
     }
     componentWillUnmount() {
         clearInterval(this.timer);
     }
+
     onSubmit = (e) => {
         e.preventDefault();
         let { data, userInput, isRFID } = this.state;
@@ -155,6 +160,14 @@ class IdScreen extends Component {
         localStorage.setItem('isRFID', JSON.stringify(event.target.value));
         console.log(event.target.value)
     };
+    handleToggle = name => event => {
+        this.setState({ [name]: event.target.checked }, () => {
+            this.props.setLocalDBFlag(this.state.localDB);
+            if(this.state.localDB){
+                this.props.loadLocalDBData();
+            }
+        });
+    };
     render() {
         if (this.props.loadDataIsProgress) {
             return (
@@ -247,10 +260,27 @@ class IdScreen extends Component {
                 </div>
                 <div style={{
                     display: 'flex',
+                    height: '10%',
+                    paddingLeft: '4%'
+                }}>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={this.state.localDB}
+                                onChange={this.handleToggle('localDB')}
+                                value="localDB"
+                                color="default"
+                            />
+                        }
+                        label="LocalDB"
+                    />
+                </div>
+                <div style={{
+                    display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    height: '90%'
+                    height: '80%'
                 }}>
                     <form onSubmit={this.onSubmit} style={{
                         display: 'flex',
@@ -307,7 +337,8 @@ let mapStateToProps = (state) => {
         currentUser: state.dbReducer.currentUser,
         lockerHistory: state.dbReducer.lockerHistory,
         usersHistory: state.dbReducer.usersHistory,
-        lastSync: state.dbReducer.lastSync
+        lastSync: state.dbReducer.lastSync,
+        localDBFlag: state.dbReducer.localDBFlag
     }
 }
 
@@ -318,7 +349,9 @@ let mapDispatchToProps = (dispatch) => {
         setDataObj: (obj) => dispatch(DBActions.setDataObj(obj)),
         setInventory: (obj) => dispatch(DBActions.setInventory(obj)),
         pushHistory: (obj) => dispatch(DBActions.pushHistory(obj)),
-        syncData: (lastSync) => dispatch(DBActions.syncData(lastSync))
+        syncData: (lastSync) => dispatch(DBActions.syncData(lastSync)),
+        setLocalDBFlag: (flag) => dispatch(DBActions.setLocalDBFlag(flag)),
+        loadLocalDBData: () => dispatch(DBActions.loadLocalDBData())
     }
 }
 

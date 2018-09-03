@@ -221,7 +221,8 @@ let mapStateToProps = (state) => {
         state,
         dataObj: state.dbReducer.dataObj,
         inventory: state.dbReducer.inventory,
-        currentUser: state.dbReducer.currentUser
+        currentUser: state.dbReducer.currentUser,
+        localDBFlag: state.dbReducer.localDBFlag
     }
 }
 let mapDispatchToProps = (dispatch) => {

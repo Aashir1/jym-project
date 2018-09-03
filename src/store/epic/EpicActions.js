@@ -2,7 +2,6 @@ import { Observable } from 'rxjs';
 import 'rxjs/add/operator/switchMap';
 import actionTypes from '../actionTypes';
 import FirebaseDB from '../Firebase/firebaseDB';
-import { ActionsObservable } from 'redux-observable';
 import DBActions from '../action/DBActions';
 import actionType from '../actionTypes';
 
@@ -132,6 +131,115 @@ export default class EpicActions {
                     })
                     .catch(err => {
                         return Observable.of({ type: actionTypes.DELETE_LOCKER_FAIL, payload: err.message });
+                    })
+            })
+    }
+
+    static loadLocalDataDBLockers($action) {
+        let dataObj = {};
+        return $action.ofType(actionTypes.LOAD_LOCALDATADB_PROGRESS)
+            .switchMap(({ }) => {
+                return Observable.ajax({
+                    url: `http://localhost:8080/getlockers`,
+                    method: 'POST',
+                    async: true,
+                    crossDomain: true,
+                    responseType: 'json',
+                    createXHR: () => new XMLHttpRequest()
+                })
+                    .pluck('response')
+                    .map(data => {
+                        console.log('data: ', data);
+                        data.docs.forEach(data => {
+                            dataObj[data._id] = {
+                                current: data.current,
+                                isAvailable: data.isAvailable,
+                                name: data.name,
+                                rfid_tag: data.rfid_tag,
+                                type: data.type
+                            }
+                        })
+                        return {
+                            type: actionTypes.LOAD_LOCALDATADB_SUCCEED,
+                            payload: dataObj
+                        }
+                    })
+                    .catch(err => {
+                        console.log('err: ', err)
+                        return Observable.of({ type: actionTypes.LOAD_DATA_FAIL, payload: err.message });
+                    })
+            })
+    }
+    static loadLocalDataDBInventory($action) {
+        let dataObj = {};
+        return $action.ofType(actionTypes.LOAD_LOCALDATADB_PROGRESS)
+            .switchMap(({ }) => {
+                return Observable.ajax({
+                    url: `http://localhost:8080/getinventory`,
+                    method: 'POST',
+                    async: true,
+                    crossDomain: true,
+                    responseType: 'json',
+                    createXHR: () => new XMLHttpRequest()
+                })
+                    .pluck('response')
+                    .map(data => {
+                        data.docs.forEach(data => {
+                            dataObj[data._id] = {
+                                consumeable: data.consumeable,
+                                name: data.name,
+                                type: data.type,
+                                rfid_tag: data.rfid_tag,
+                                qty: data.qty
+                            }
+                        })
+                        return {
+                            type: actionTypes.LOAD_LOCALDATADB_SUCCEED,
+                            payload: dataObj
+                        }
+                    })
+                    .catch(err => {
+                        console.log('err: ', err)
+                        return Observable.of({ type: actionTypes.LOAD_DATA_FAIL, payload: err.message });
+                    })
+            })
+    }
+    static loadLocalDataDBUsers($action) {
+        let dataObj = {};
+        return $action.ofType(actionTypes.LOAD_LOCALDATADB_PROGRESS)
+            .switchMap(({ }) => {
+                console.log('request send...........')
+                return Observable.ajax({
+                    url: `http://localhost:8080/getusers`,
+                    method: 'POST',
+                    async: true,
+                    crossDomain: true,
+                    responseType: 'json',
+                    createXHR: () => new XMLHttpRequest()
+                })
+                    .pluck('response')
+                    .map(data => {
+                        console.log('local API data: ', data);
+                        let obj = {};
+                        data.docs.forEach(data => {
+                            dataObj[data._id] = {
+                                firstName: data.firstName,
+                                lastName: data.lastName,
+                                member_id: data.member_id,
+                                name: data.name,
+                                rfid_tag: data.rfid_tag,
+                                current: data.current,
+                                type: data.type
+                            }
+                        })
+                        return {
+                            type: actionTypes.LOAD_LOCALDATADB_SUCCEED,
+                            payload: dataObj
+                        }
+                    })
+                    .catch(err => {
+                        console.log('err: ', err)
+                        return Observable.of({ type: actionTypes.LOAD_DATA_FAIL, payload: err.message });
                     })
             })
     }

@@ -20,7 +20,10 @@ export const rootEpic = combineEpics(
     EpicActions.setInventory,
     EpicActions.pushHistory,
     EpicActions.syncData,
-    EpicActions.deleteItem
+    EpicActions.deleteItem,
+    EpicActions.loadLocalDataDBUsers,
+    EpicActions.loadLocalDataDBLockers,
+    EpicActions.loadLocalDataDBInventory
 );
 
 const epicMiddleware = createEpicMiddleware(rootEpic);
