@@ -15,11 +15,12 @@ export default class FirebaseDB {
         })
     }
     static setDataObj(obj) {
-        return new Promise((res, rej) => {
-            console.log('inside promise dataObj: ', obj)
-            fire.child('dataObj/').set(obj);
-            res(true);
-        })
+        if (obj)
+            return new Promise((res, rej) => {
+                console.log('inside promise dataObj: ', obj)
+                fire.child('dataObj/').set(obj);
+                res(true);
+            })
     }
     static setInventory(obj) {
         return new Promise((res, rej) => {

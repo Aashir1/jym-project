@@ -27,6 +27,7 @@ export default class EpicActions {
     static setDataObj($action) {
         return $action.ofType(actionTypes.SET_DATAOBJ_PROGRESS)
             .switchMap(({ payload }) => {
+                if(payload)
                 return Observable.fromPromise(FirebaseDB.setDataObj(payload))
                     .map(data => {
                         return {
@@ -107,13 +108,17 @@ export default class EpicActions {
                         return multipath;
                     }).switchMap((data) => {
                         console.log('data: ', multipathForStore);
-                        return Observable.fromPromise(FirebaseDB.syncDatatoFirebase(data))
-                            .map(() => {
-                                return {
-                                    type: actionTypes.SYNC_DATA_SUCCEED,
-                                    payload: multipathForStore
-                                }
-                            });
+                        if(data){
+                            return Observable.fromPromise(FirebaseDB.syncDatatoFirebase(data))
+                                .map(() => {
+                                    return {
+                                        type: actionTypes.SYNC_DATA_SUCCEED,
+                                        payload: multipathForStore
+                                    }
+                                });
+                        }else{
+                            alert('error in data fetching');
+                        }
                     })
                     .catch(err => {
                         return Observable.of({ type: actionTypes.SYNC_DATA_FAIL, payload: err.message })
