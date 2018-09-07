@@ -13,6 +13,14 @@ app.set('port', 3005 || process.env.PORT);
 app.use(logger('dev'));
 app.use(bodyParser.json());
 
+app.use('/static', express.static(__dirname + '/build/static'));
+
+
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/build/index.html');
+})
+
+
 app.post('/addManyUsers', (req, res) => {
     console.log('from Many Users: ', req.body)
     SaveData.insertManyUsers(req, res);
