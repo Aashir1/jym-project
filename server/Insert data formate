@@ -1,0 +1,39 @@
+Insert User:
+
+{
+      "current" : {
+        "assignDate" : "",
+        "checkoutDate" : "",
+        "lockerId" : ""
+      },
+      "firstName" : "Mustafa",
+      "lastName" : "Njamuddin",
+      "member_id" : 12091156,
+      "name" : "Mustafa Njamuddin",
+      "rfid_tag" : 12091156,
+      "type" : "member"
+}
+
+Insert Product:
+
+{
+      "consumeable" : false,
+      "name" : "Face towel ",
+      "qty" : 98,
+      "rfid_tag" : "1",
+      "type" : "product"
+	
+}
+
+Insert Locker:
+{
+      "current" : {
+        "checkDate" : "",
+        "checkout" : "",
+        "uid" : ""
+      },
+      "isAvailable" : true,
+      "name" : "Locker 058",
+      "rfid_tag" : "0006497536",
+      "type" : "locker"
+}

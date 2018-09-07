@@ -11,7 +11,7 @@ export default class EpicActions {
     static addHistoryUser($action) {
         return $action.ofType(actionTypes.ADD_HISTORY_USER_PROGRESS)
             .switchMap(({ payload }) => {
-                return HttpService.post('http://192.168.100.39:3005/addHistoryuser', payload)//make call on node server and complete history work
+                return HttpService.post('http://localhost:3005/addHistoryuser', payload)//make call on node server and complete history work
                     .pluck('response')
                     .map(({ data }) => {
                         console.log('addedHistoryLocker: ', data);
@@ -27,7 +27,7 @@ export default class EpicActions {
     static addHistoryLocker($action) {
         return $action.ofType(actionTypes.ADD_HISTORY_LOCKER_PROGRESS)
             .switchMap(({ payload }) => {
-                return HttpService.post('http://192.168.100.39:3005/addHistorylocker', payload)//make call on node server and complete history work
+                return HttpService.post('http://localhost:3005/addHistorylocker', payload)//make call on node server and complete history work
                     .pluck('response')
                     .map(({ data }) => {
                         console.log('addedHistoryLocker: ', data);
@@ -43,7 +43,7 @@ export default class EpicActions {
     static updateUser($action) {
         return $action.ofType(actionTypes.UPDATE_USER_PROGRESS)
             .switchMap(({ payload }) => {
-                return HttpService.post(`http://192.168.100.39:3005/updateuser`, payload)
+                return HttpService.post(`http://localhost:3005/updateuser`, payload)
                     .pluck('response')
                     .map(({ data }) => {
                         console.log('Mongo UpdatedUser', data);
@@ -73,7 +73,7 @@ export default class EpicActions {
     static updateLocker($action) {
         return $action.ofType(actionTypes.UPDATE_LOCKER_PROGRESS)
             .switchMap(({ payload }) => {
-                return HttpService.post(`http://192.168.100.39:3005/updatelocker`, payload)
+                return HttpService.post(`http://localhost:3005/updatelocker`, payload)
                     .pluck('response')
                     .map(({ data }) => {
                         console.log('Mongo UpdatedLocker', data);
@@ -100,7 +100,7 @@ export default class EpicActions {
     static updateInventory($action) {
         return $action.ofType(actionTypes.UPDATE_INVENTORY_PROGRESS)
             .mergeMap(({ payload }) => {
-                return HttpService.post(`http://192.168.100.39:3005/updateinventory`, payload)
+                return HttpService.post(`http://localhost:3005/updateinventory`, payload)
                     .pluck('response')
                     .map(({ data }) => {
                         let obj = {};
@@ -125,7 +125,7 @@ export default class EpicActions {
     static deleteInventory($action) {
         return $action.ofType(actionTypes.DELETE_INVENTORY_PROGRESS)
             .switchMap(({ payload }) => {
-                return HttpService.post(`http://192.168.100.39:3005/deleteinventory/${payload}`)
+                return HttpService.post(`http://localhost:3005/deleteinventory/${payload}`)
                     .pluck('response')
                     .map(({ data }) => {
                         console.log('deleted product: ', data);
@@ -142,7 +142,7 @@ export default class EpicActions {
     static addInventory($action) {
         return $action.ofType(actionTypes.ADD_INVENTORY_PROGRESS)
             .switchMap(({ payload }) => {
-                return HttpService.post(`http://192.168.100.39:3005/addInventory`, payload)
+                return HttpService.post(`http://localhost:3005/addInventory`, payload)
                     .pluck('response')
                     .map(({ data }) => {
                         let obj = {};
@@ -169,7 +169,7 @@ export default class EpicActions {
     static deleteLocker($action) {
         return $action.ofType(actionTypes.DELETE_LOCAL_LOCKER_PROGRESS)
             .switchMap(({ payload }) => {
-                return HttpService.post(`http://192.168.100.39:3005/deletelocker/${payload}`)
+                return HttpService.post(`http://localhost:3005/deletelocker/${payload}`)
                     .pluck('response')
                     .map(({ data }) => {
                         return {
@@ -186,7 +186,7 @@ export default class EpicActions {
     static addLocker($action) {
         return $action.ofType(actionTypes.ADD_LOCKER_PROGRESS)
             .switchMap(({ payload }) => {
-                return HttpService.post(`http://192.168.100.39:3005/addLocker`, payload)
+                return HttpService.post(`http://localhost:3005/addLocker`, payload)
                     .pluck('response')
                     .map(({ data }) => {
                         let obj = {};
@@ -212,7 +212,7 @@ export default class EpicActions {
     static deleteUser($action) {
         return $action.ofType(actionTypes.DELETE_USER_PROGRESS)
             .switchMap(({ payload }) => {
-                return HttpService.post(`http://192.168.100.39:3005/deleteuser/${payload}`)
+                return HttpService.post(`http://localhost:3005/deleteuser/${payload}`)
                     .pluck('response')
                     .map(res => {
                         // console.log('deleted User: ', res);
@@ -239,7 +239,7 @@ export default class EpicActions {
                 //     createXHR: () => new XMLHttpRequest()
                 // })
                 console.log('payload from addUserEpic: ', payload);
-                return HttpService.post(`http://192.168.100.39:3005/addUser`, payload)
+                return HttpService.post(`http://localhost:3005/addUser`, payload)
                     .pluck('response')
                     .map(({ data }) => {
                         let obj = {};
@@ -269,7 +269,7 @@ export default class EpicActions {
     // static loadData($action) {
     //     return $action.ofType(actionTypes.LOAD_DATA_PROGRESS)
     //         .switchMap(({payload}) => {
-    //             return HttpService.post(`http://192.168.100.39:3005/addManyLockers`, payload.lockers)
+    //             return HttpService.post(`http://localhost:3005/addManyLockers`, payload.lockers)
     //                 .map(data => {
     //                     console.log("inserted Obj: ", data);
 
@@ -336,7 +336,7 @@ export default class EpicActions {
     static setLastSync(action$) {
         return action$.ofType(actionTypes.SYNC_DATA_PROGRESS)
             .switchMap(() => {
-                return HttpService.post(`http://192.168.100.39:3005/addlastsync`)
+                return HttpService.post(`http://localhost:3005/addlastsync`)
                     .pluck('response')
                     .map((data) => {
                         console.log('uuuuuuuuuuupdate lastSync: ', data);
@@ -392,7 +392,7 @@ export default class EpicActions {
                         console.log('data: ', multipathForStore);
                         let membersArray = Object.values(multipathForStore);
                         console.log('membersArray: ', membersArray);
-                        return HttpService.post(`http://192.168.100.39:3005/addManyUsers`, { membersArray })
+                        return HttpService.post(`http://localhost:3005/addManyUsers`, { membersArray })
                             // .pluck('response')
                             .map((data) => {
                                 console.log('api users: ', data);
@@ -431,7 +431,7 @@ export default class EpicActions {
         let dataObj = {};
         return $action.ofType(actionTypes.LOAD_LOCALDATADB_PROGRESS)
             .switchMap(({ }) => {
-                return HttpService.post(`http://192.168.100.39:3005/getlastsync`)
+                return HttpService.post(`http://localhost:3005/getlastsync`)
                     .pluck('response')
                     .map(data => {
                         let lastSync = data.docs[0].lastSync;
@@ -454,7 +454,7 @@ export default class EpicActions {
         return $action.ofType(actionTypes.LOAD_LOCALDATADB_PROGRESS)
             .switchMap(({ }) => {
                 return Observable.ajax({
-                    url: `http://192.168.100.39:3005/getlockers`,
+                    url: `http://localhost:3005/getlockers`,
                     method: 'POST',
                     async: true,
                     crossDomain: true,
@@ -490,7 +490,7 @@ export default class EpicActions {
         return $action.ofType(actionTypes.LOAD_LOCALDATADB_PROGRESS)
             .switchMap(({ }) => {
                 return Observable.ajax({
-                    url: `http://192.168.100.39:3005/getinventory`,
+                    url: `http://localhost:3005/getinventory`,
                     method: 'POST',
                     async: true,
                     crossDomain: true,
@@ -526,7 +526,7 @@ export default class EpicActions {
             .switchMap(({ }) => {
                 console.log('request send...........')
                 return Observable.ajax({
-                    url: `http://192.168.100.39:3005/getusers`,
+                    url: `http://localhost:3005/getusers`,
                     method: 'POST',
                     async: true,
                     crossDomain: true,
