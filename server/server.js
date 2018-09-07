@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+let cors = require('cors')
 const bodyParser = require('body-parser');
 const logger = require('morgan');
 const SaveData = require('./controller/SaveData');
@@ -8,7 +9,7 @@ const FindData = require('./controller/LoadAndFindData');
 const UpdateData = require('./controller/UpdateData');
 
 const app = express();
-
+app.use(cors());
 app.set('port', 3005 || process.env.PORT);
 app.use(logger('dev'));
 app.use(bodyParser.json());
