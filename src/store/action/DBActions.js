@@ -2,13 +2,79 @@ import actionTypes from '../actionTypes';
 
 
 class DBActions {
-    static  loadLocalDBData(){
-        return{
+    static addHistoryUser(obj) {
+        return {
+            type: actionTypes.ADD_HISTORY_USER_PROGRESS,
+            payload: obj
+        }
+    }
+    static addHistoryLocker(obj) {
+        return {
+            type: actionTypes.ADD_HISTORY_LOCKER_PROGRESS,
+            payload: obj
+        }
+    }
+    static updateLocker(obj) {
+        return {
+            type: actionTypes.UPDATE_LOCKER_PROGRESS,
+            payload: obj
+        }
+    }
+    static updateUser(obj) {
+        return {
+            type: actionTypes.UPDATE_USER_PROGRESS,
+            payload: obj
+        }
+    }
+    static updateInventory(obj) {
+        return {
+            type: actionTypes.UPDATE_INVENTORY_PROGRESS,
+            payload: obj
+        }
+    }
+    static deleteInventory(id) {
+        return {
+            type: actionTypes.DELETE_INVENTORY_PROGRESS,
+            payload: id
+        }
+    }
+    static addInventory(obj) {
+        return {
+            type: actionTypes.ADD_INVENTORY_PROGRESS,
+            payload: obj
+        }
+    }
+    static deleteLocker(id) {
+        return {
+            type: actionTypes.DELETE_LOCAL_LOCKER_PROGRESS,
+            payload: id
+        }
+    }
+    static addLocker(obj) {
+        return {
+            type: actionTypes.ADD_LOCKER_PROGRESS,
+            payload: obj
+        }
+    }
+    static deleteUser(id) {
+        return {
+            type: actionTypes.DELETE_USER_PROGRESS,
+            payload: id
+        }
+    }
+    static addUser(obj) {
+        return {
+            type: actionTypes.ADD_USER_PROGRESS,
+            payload: obj
+        }
+    }
+    static loadLocalDBData() {
+        return {
             type: actionTypes.LOAD_LOCALDATADB_PROGRESS
         }
     }
-    static setLocalDBFlag(flag){
-        return{
+    static setLocalDBFlag(flag) {
+        return {
             type: actionTypes.SET_LOCALDB_FLAG,
             payload: flag
         }
@@ -19,9 +85,10 @@ class DBActions {
             payload: obj
         }
     }
-    static loadData() {
+    static loadData(obj) {
         return {
-            type: actionTypes.LOAD_DATA_PROGRESS
+            type: actionTypes.LOAD_DATA_PROGRESS,
+            payload: obj
         }
     }
     static setDataObj(obj) {

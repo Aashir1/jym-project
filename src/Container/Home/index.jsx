@@ -57,9 +57,11 @@ class Home extends Component {
         let { inventoryId, userObj, tabState } = this.state;
         let { dataObj, currentUser, inventory } = this.props;
         let data = {}, isFound = true;
-        let userInput = inventoryId;
-        console.log('checking*-*-*-*-*-*-**/*/*/*-*-*-*-*: ', dataObj[userInput.toString()]);
-        console.log('userInput: ', userInput)
+        let userInput = (inventoryId).toString();
+
+        console.log('checking*-*-*-*-*-*-**/*/*/*-*-*-*-*: ', dataObj[(userInput)]);
+        console.log('userInput: ', userInput);
+        console.log('DataObject: ', dataObj);
 
         this.lockerCurrentInfo = dataObj[currentUser.lockerId];
 
@@ -112,17 +114,30 @@ class Home extends Component {
                                 this.state.tempArray.forEach((data, i) => {
                                     if (inventory[data.rfid_tag].qty > 0) {
                                         inventory[data.rfid_tag].qty -= data.qty;
+                                        if (this.props.localDBFlag) {
+                                            this.props.updateInventory({ id: inventory[data.rfid_tag].id, data: inventory[data.rfid_tag] });
+                                        }
                                     }
                                 })
                                 dataObj[currentUser.rfid_tag].current.product = this.state.tempArray;
                                 dataObj[userInput].current.uid = currentUser.rfid_tag;
-                                dataObj[currentUser.rfid_tag].current.assignDate = new Date();
+                                dataObj[currentUser.rfid_tag].current.assignDate = Date.now();
+                                dataObj[currentUser.rfid_tag].current.checkDate = Date.now();
+                                dataObj[currentUser.rfid_tag].current.lockerId = dataObj[userInput].rfid_tag;                                
                                 console.log('after assigning dataObj[currentUser.rfid_tag]: ', dataObj[currentUser.rfid_tag]);
                                 dataObj[userInput].isAvailable = false;
                                 this.setState({ inventoryId: '', isLockerAssigned: true, assignedLocker: dataObj[userInput] });
                                 this.props.setCurrentUser(currentUser);
-                                this.props.setDataObj(dataObj);
-                                this.props.setInventory(inventory);
+                                //take start from there
+                                if (this.props.localDBFlag) {
+                                    this.props.updateUser({ id: dataObj[currentUser.rfid_tag].id, data: dataObj[currentUser.rfid_tag] });
+                                    this.props.updateLocker({ id: dataObj[userInput].id, data: dataObj[userInput] });
+
+                                }
+                                if (!this.props.localDBFlag) {
+                                    this.props.setDataObj(dataObj);
+                                    this.props.setInventory(inventory);
+                                }
                                 return
                             } else {
                                 alert('this locker already in use select another');
@@ -139,27 +154,63 @@ class Home extends Component {
                     //if locker assigned
                     let availableInventoryIds = Object.keys(inventory);
                     if (availableInventoryIds.indexOf(inventoryId) !== -1) {
-                        inventory[inventoryId].qty -= 1;
-                        this.props.setInventory(inventory);
+                        if (inventory[inventoryId].qty > 0 && inventory[inventoryId].consumeable) {
+                            inventory[inventoryId].qty -= 1;
+                            if (this.props.localDBFlag) {//for localDB updateInventory
+                                if (inventory[inventoryId])
+                                    this.props.updateInventory({ id: inventory[inventoryId].id, data: inventory[inventoryId] })
+                            }
+                            if (!this.props.localDBFlag) {//for firebaseDB updateInventory
+                                if (inventory)
+                                    this.props.setInventory(inventory);
+                            }
+                        }
                         if (this.lockerCurrentInfo.product == undefined || this.lockerCurrentInfo.product.lenght == 0) {
                             // push product in locker array
                             this.lockerCurrentInfo['product'] = [{ name: inventory[inventoryId].name, qty: 1, consumeable: inventory[inventoryId].consumeable, rfid_tag: inventoryId }];
                             // push product in user checkin array                        
                             dataObj[currentUser.rfid_tag].current.product = [{ name: inventory[inventoryId].name, qty: 1, consumeable: inventory[inventoryId].consumeable, rfid_tag: inventoryId }];
-                            this.props.setDataObj(dataObj);
+                            if (this.props.localDBFlag) {
+                                if (dataObj[currentUser.rfid_tag])
+                                    this.props.updateUser({ id: dataObj[currentUser.rfid_tag].id, data: dataObj[currentUser.rfid_tag] })
+                            }
+                            if (!this.props.localDBFlag) {//for firebase updateUser
+                                if (dataObj[currentUser.rfid_tag])
+                                    this.props.setDataObj(dataObj);
+                            }
                         } else {
                             let isInventoryFind = false;
                             // update product in locker array
                             this.lockerCurrentInfo.product.forEach((data, i) => {
                                 if (inventory[inventoryId].name == data.name && inventory[inventoryId].qty > 0) {
                                     this.lockerCurrentInfo.product[i].qty += 1;
-                                    this.props.setDataObj(dataObj);
+                                    if (this.props.localDBFlag) {//for localDB updatelocker
+                                        if (dataObj[currentUser.lockerId]) {
+                                            dataObj[currentUser.lockerId].current = this.lockerCurrentInfo;
+                                            this.props.updateLocker({ id: dataObj[currentUser.lockerId].id, data: dataObj[currentUser.lockerId] });
+                                        }
+                                    }
+                                    if (!this.props.localDBFlag) {//for firebase updatelocker
+                                        if (this.lockerCurrentInfo)
+                                            this.props.setDataObj(dataObj);
+                                    }
+                                    // this.props.setDataObj(dataObj);
                                     isInventoryFind = true;
                                 }
                             })
                             if (!isInventoryFind) {
                                 this.lockerCurrentInfo.product.push({ name: inventory[inventoryId].name, qty: 1, consumeable: inventory[inventoryId].consumeable, rfid_tag: inventoryId });
-                                this.props.setDataObj(dataObj);
+                                if (this.props.localDBFlag) {//for localDB updatelocker
+                                    if (dataObj[currentUser.lockerId]) {
+                                        dataObj[currentUser.lockerId].current = this.lockerCurrentInfo;
+                                        this.props.updateLocker({ id: dataObj[currentUser.lockerId].id, data: dataObj[currentUser.lockerId] });
+                                    }
+                                }
+                                if (!this.props.localDBFlag) {//for firebase updatelocker
+                                    if (this.lockerCurrentInfo)
+                                        this.props.setDataObj(dataObj);
+                                }
+                                // this.props.setDataObj(dataObj);
                             }
                         }
                     }
@@ -192,6 +243,7 @@ class Home extends Component {
         this.setState({ inventoryId: '' });
     }
     render() {
+        console.log('this.state.tempArray: ', this.state.tempArray);
         let { dataObj, currentUser, inventory } = this.props;
         return (
             <Navbar history={this.props.history} name={currentUser.name} imageUrl={currentUser.imageUrl
@@ -343,14 +395,18 @@ let mapStateToProps = (state) => {
         dataObj: state.dbReducer.dataObj,
         inventory: state.dbReducer.inventory,
         currentUser: state.dbReducer.currentUser,
-        loadDataIsProgress: state.dbReducer.loadDataIsProgress
+        loadDataIsProgress: state.dbReducer.loadDataIsProgress,
+        localDBFlag: state.dbReducer.localDBFlag
     }
 }
 let mapDispatchToProps = (dispatch) => {
     return {
         setCurrentUser: (obj) => dispatch(DBActions.setCurrentUser(obj)),
         setDataObj: (obj) => dispatch(DBActions.setDataObj(obj)),
-        setInventory: (obj) => dispatch(DBActions.setInventory(obj))
+        setInventory: (obj) => dispatch(DBActions.setInventory(obj)),
+        updateInventory: (obj) => dispatch(DBActions.updateInventory(obj)),
+        updateUser: (obj) => dispatch(DBActions.updateUser(obj)),
+        updateLocker: (obj) => dispatch(DBActions.updateLocker(obj))
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

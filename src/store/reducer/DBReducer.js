@@ -11,7 +11,9 @@ let intialState = {
     currentUser: null,
     pushHistoryData: [],
     lastSync: '',
-    localDBFlag: false
+    localDBFlag: true,
+    addUserProgress: false,
+    privateKey: 'abc123'
 }
 
 function DBReducer(state = intialState, action) {
@@ -86,8 +88,99 @@ function DBReducer(state = intialState, action) {
         case actionTypes.LOAD_LOCALDATADB_PROGRESS:
             return Object.assign({}, state, { loadDataIsProgress: true });
         case actionTypes.LOAD_LOCALDATADB_SUCCEED:
+            if (typeof action.payload == 'string') {
+                return Object.assign({}, state, { lastSync: action.payload });
+            }
             return Object.assign({}, state, { loadDataIsProgress: false, dataObj: { ...state.dataObj, ...action.payload } });
+        case actionTypes.LOAD_LOCALDATADB_INVENTORY_SUCCEED:
+            return Object.assign({}, state, { loadDataIsProgress: false, inventory: { ...state.inventory, ...action.payload }, dataObj: { ...state.dataObj, ...action.payload } });
         case actionTypes.LOAD_LOCALDATADB_FAIL:
+            return Object.assign({}, state, { loadDataIsProgress: false, errorMessage: action.payload });
+
+
+
+        case actionTypes.ADD_USER_PROGRESS:
+            return Object.assign({}, state, { addUserProgress: true });
+        case actionTypes.ADD_USER_SUCCEED:
+            return Object.assign({}, state, { addUserProgress: false, dataObj: { ...state.dataObj, ...action.payload } });
+        case actionTypes.ADD_USER_FAIL:
+            return Object.assign({}, state, { addUserProgress: false, errorMessage: action.payload });
+
+
+        case actionTypes.DELETE_USER_PROGRESS:
+            return Object.assign({}, state, { loadDataIsProgress: true });
+        case actionTypes.DELETE_USER_SUCCEED:
+            let tempObj = state.dataObj;
+            console.log('from reducer action.payload: ', action.payload);
+            delete tempObj[action.payload.rfid_tag];
+            return Object.assign({}, state, { dataObj: tempObj, loadDataIsProgress: false });
+        case actionTypes.DELETE_USER_FAIL:
+            return Object.assign({}, state, { errorMessage: action.payload, loadDataIsProgress: false });
+
+
+
+        case actionTypes.ADD_LOCKER_PROGRESS:
+            return Object.assign({}, state, { loadDataIsProgress: true });
+        case actionTypes.ADD_LOCKER_SUCCEED:
+            return Object.assign({}, state, { dataObj: { ...state.dataObj, ...action.payload }, loadDataIsProgress: false });
+        case actionTypes.ADD_LOCKER_FAIL:
+            return Object.assign({}, state, { errorMessage: action.payload, loadDataIsProgress: false });
+
+
+        case actionTypes.DELETE_LOCAL_LOCKER_PROGRESS:
+            return Object.assign({}, state, { loadDataIsProgress: true });
+        case actionTypes.DELETE_LOCAL_LOCKER_SUCCEED:
+            let temObj = state.dataObj;
+            console.log('from reducer action.payload/*/*/*/*/*/*/*/*/*/*/: ', action.payload);
+            delete temObj[action.payload.rfid_tag];
+            return Object.assign({}, state, { loadDataIsProgress: false, dataObj: temObj });
+        case actionTypes.DELETE_LOCAL_LOCKER_FAIL:
+            return Object.assign({}, state, { loadDataIsProgress: false, errorMessage: action.payload });
+
+
+
+        case actionTypes.ADD_INVENTORY_PROGRESS:
+            return Object.assign({}, state, { loadDataIsProgress: true });
+        case actionTypes.ADD_INVENTORY_SUCCEED:
+            return Object.assign({}, state, { loadDataIsProgress: false, dataObj: { ...state.dataObj, ...action.payload }, inventory: { ...state.inventory, ...action.payload } });
+        case actionTypes.ADD_INVENTORY_FAIL:
+            return Object.assign({}, state, { loadDataIsProgress: false, errorMessage: action.payload });
+
+
+
+        case actionTypes.DELETE_INVENTORY_PROGRESS:
+            return Object.assign({}, state, { loadDataIsProgress: true });
+        case actionTypes.DELETE_INVENTORY_SUCCEED: {
+            let { dataObj, inventory } = state;
+            delete dataObj[action.payload.rfid_tag];
+            delete inventory[action.payload.rfid_tag];
+            return Object.assign({}, state, { loadDataIsProgress: false, dataObj, inventory });
+        }
+        case actionTypes.DELETE_INVENTORY_FAIL:
+            return Object.assign({}, state, { loadDataIsProgress: false, errorMessage: action.payload });
+
+
+        case actionTypes.UPDATE_INVENTORY_PROGRESS:
+            return Object.assign({}, state, { loadDataIsProgress: true });
+        case actionTypes.UPDATE_INVENTORY_SUCCEED:
+            return Object.assign({}, state, { dataObj: { ...state.dataObj, ...action.payload }, inventory: { ...state.inventory, ...action.payload } });
+        case actionTypes.UPDATE_INVENTORY_FAIL:
+            return Object.assign({}, state, { loadDataIsProgress: false, errorMessage: action.payload });
+
+
+        case actionTypes.UPDATE_USER_PROGRESS:
+            return Object.assign({}, state, { loadDataIsProgress: true });
+        case actionTypes.UPDATE_USER_SUCCEED:
+            return Object.assign({}, state, { loadDataIsProgress: false, dataObj: { ...state.dataObj, ...action.payload } });
+        case actionTypes.UPDATE_USER_FAIL:
+            return Object.assign({}, state, { loadDataIsProgress: false, errorMessage: action.payload });
+
+
+        case actionTypes.UPDATE_LOCKER_PROGRESS:
+            return Object.assign({}, state, { loadDataIsProgress: true });
+        case actionTypes.UPDATE_LOCKER_SUCCEED:
+            return Object.assign({}, state, { loadDataIsProgress: false, dataObj: { ...state.dataObj, ...action.payload } });
+        case actionTypes.UPDATE_LOCKER_FAIL:
             return Object.assign({}, state, { loadDataIsProgress: false, errorMessage: action.payload });
 
         default:

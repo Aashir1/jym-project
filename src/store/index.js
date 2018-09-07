@@ -15,7 +15,7 @@ const rootReducer = combineReducers({
 });
 
 export const rootEpic = combineEpics(
-    EpicActions.loadData,
+    // EpicActions.loadData,
     EpicActions.setDataObj,
     EpicActions.setInventory,
     EpicActions.pushHistory,
@@ -23,7 +23,20 @@ export const rootEpic = combineEpics(
     EpicActions.deleteItem,
     EpicActions.loadLocalDataDBUsers,
     EpicActions.loadLocalDataDBLockers,
-    EpicActions.loadLocalDataDBInventory
+    EpicActions.loadLocalDataDBInventory,
+    EpicActions.addUser,
+    EpicActions.deleteUser,
+    EpicActions.addLocker,
+    EpicActions.deleteLocker,
+    EpicActions.addInventory,
+    EpicActions.deleteInventory,
+    EpicActions.updateInventory,
+    EpicActions.updateLocker,
+    EpicActions.updateUser,
+    EpicActions.addHistoryLocker,
+    EpicActions.addHistoryUser,
+    EpicActions.loadLocalDataDBLastSync,
+    EpicActions.setLastSync
 );
 
 const epicMiddleware = createEpicMiddleware(rootEpic);

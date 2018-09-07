@@ -56,47 +56,78 @@ class Products extends Component {
         }
     }
     addProduct = () => {
-        let { productName, consumeable, productQty, inventoryArray, productId } = this.state;
-        let { dataObj, inventory, currentUser } = this.props;
-        let flag = false;
-        // console.log('productName : ', productName);
-        // console.log('productId : ', productId);
-        // console.log('consumeable : ', consumeable);
-        // console.log('flag : ', productName.trim() !== "" && productQty.trim() !== "" && (typeof consumeable === 'boolean') && productId > 0);
-        if (productName.trim() !== "" && productQty.trim() !== "" && (typeof consumeable === 'boolean') && productId > 0) {
-            let inventoryKeyArray = Object.keys(inventory);
-            for (let i in inventory) {
-                productName = productName.charAt(0).toUpperCase() + productName.slice(1).toLowerCase();
-                if (inventory[i].name == productName) {
-                    inventory[i].qty += parseInt(productQty);
-                    this.props.setInventory(inventory);
-                    this.props.setDataObj(dataObj);
-                    flag = true;
-                    break;
+        let enterKey = prompt('Enter your key: ');
+        if (enterKey === this.props.privateKey) {
+            let { productName, consumeable, productQty, inventoryArray, productId } = this.state;
+            let { dataObj, inventory, currentUser, localDBFlag } = this.props;
+            let flag = false;
+            console.log('add product func');
+            // console.log('productName : ', productName);
+            // console.log('productId : ', productId);
+            // console.log('consumeable : ', consumeable);
+            // console.log('flag : ', productName.trim() !== "" && productQty.trim() !== "" && (typeof consumeable === 'boolean') && productId > 0);
+            if (productName.trim() !== "" && productQty.trim() !== "" && (typeof consumeable === 'boolean') && productId > 0) {
+                let inventoryKeyArray = Object.keys(inventory);
+                for (let i in inventory) {
+                    productName = productName.charAt(0).toUpperCase() + productName.slice(1).toLowerCase();
+                    if (inventory[i].name == productName) {
+                        let qty = parseInt(inventory[i].qty);
+                        qty += parseInt(productQty);
+                        qty = qty.toString();
+                        inventory[i].qty = qty;
+                        if (localDBFlag) {
+                            this.props.updateInventory({ id: inventory[i].id, data: inventory[i] });
+                        }
+                        if (!localDBFlag) {
+                            this.props.setInventory(inventory);
+                            this.props.setDataObj(dataObj);
+                        }
+                        flag = true;
+                        break;
+                    }
                 }
+                if (!flag && dataObj[productId] == undefined) {
+                    productName = productName.charAt(0).toUpperCase() + productName.slice(1).toLowerCase();
+                    console.log('product Name', productName);
+                    inventory[productId] = { type: 'product', rfid_tag: productId, name: productName, qty: parseInt(productQty), consumeable };
+                    dataObj[productId] = { type: 'product', rfid_tag: productId, name: productName, qty: parseInt(productQty), consumeable };
+                    if (localDBFlag) {
+                        this.props.addInventory(inventory[productId]);
+                    }
+                    if (!localDBFlag) {
+                        inventoryArray = [...inventoryArray, { key: productId, data: { type: 'product', rfid_tag: productId, name: productName, qty: parseInt(productQty), consumeable } }]
+                        this.props.setInventory(inventory);
+                        this.props.setDataObj(dataObj);
+                    }
+                }
+                if (localDBFlag) {
+                    this.setState({ productId: '', productName: '', consumeable: '', productQty: '' });
+                }
+                if (!localDBFlag) {
+                    this.setState({ productId: '', productName: '', consumeable: '', productQty: '', inventoryArray });
+                }
+            } else {
+                alert('Data Badly formated or already exist')
             }
-            if (!flag && dataObj[productId] == undefined) {
-                productName = productName.charAt(0).toUpperCase() + productName.slice(1).toLowerCase();
-                console.log('product Name', productName);
-                inventory[productId] = { type: 'product', rfid_tag: productId, name: productName, qty: parseInt(productQty), consumeable };
-                dataObj[productId] = { type: 'product', rfid_tag: productId, name: productName, qty: parseInt(productQty), consumeable };
-                inventoryArray = [...inventoryArray, { key: productId, data: { type: 'product', rfid_tag: productId, name: productName, qty: parseInt(productQty), consumeable } }]
-                this.props.setInventory(inventory);
-                this.props.setDataObj(dataObj);
-            }
-            this.setState({ productId: '', productName: '', consumeable: '', productQty: '', inventoryArray }, () => {
-            });
-        } else {
-            alert('Data Badly formated or already exist')
         }
+        this.setState({ productId: '', productName: '', consumeable: '', productQty: '' });
+        enterKey = "";
     }
 
     handleChange = event => {
         this.setState({ [event.target.name]: event.target.value });
     };
 
-    deleteItem = (rfid_tag) => {
-        this.props.deleteItem({ id: rfid_tag, cat: 'inventory' });
+    deleteItem = (rfid_tag, databaseId = undefined) => {
+        let enterKey = prompt('Enter your key: ');
+        if (enterKey === this.props.privateKey) {
+            if (this.props.localDBFlag) {
+                this.props.deleteInventory(databaseId);
+            }
+            if (!this.props.localDBFlag) {
+                this.props.deleteItem({ id: rfid_tag, cat: 'inventory' });
+            }
+        }
     }
     render() {
         let { dataObj, inventory, currentUser } = this.props;
@@ -201,7 +232,12 @@ class Products extends Component {
                                                         {data.qty}
                                                     </div>
                                                     <div style={{ marginLeft: '15px' }}>
-                                                        <Delete onClick={() => this.deleteItem(data.rfid_tag)} style={{ cursor: 'pointer', color: '#c0392b' }} />
+                                                        {
+                                                            this.props.localDBFlag ?
+                                                                <Delete onClick={() => this.deleteItem(data.rfid_tag, data.id)} style={{ cursor: 'pointer', color: '#c0392b' }} />
+                                                                :
+                                                                <Delete onClick={() => this.deleteItem(data.rfid_tag)} style={{ cursor: 'pointer', color: '#c0392b' }} />
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
@@ -222,7 +258,9 @@ let mapStateToProps = (state) => {
         state,
         dataObj: state.dbReducer.dataObj,
         inventory: state.dbReducer.inventory,
-        currentUser: state.dbReducer.currentUser
+        currentUser: state.dbReducer.currentUser,
+        localDBFlag: state.dbReducer.localDBFlag,
+        privateKey: state.dbReducer.privateKey
     }
 }
 let mapDispatchToProps = (dispatch) => {
@@ -230,7 +268,10 @@ let mapDispatchToProps = (dispatch) => {
         setCurrentUser: (obj) => dispatch(DBActions.setCurrentUser(obj)),
         setDataObj: (obj) => dispatch(DBActions.setDataObj(obj)),
         setInventory: (obj) => dispatch(DBActions.setInventory(obj)),
-        deleteItem: (obj) => dispatch(DBActions.deleteItem(obj))
+        deleteItem: (obj) => dispatch(DBActions.deleteItem(obj)),
+        addInventory: (obj) => dispatch(DBActions.addInventory(obj)),
+        deleteInventory: (id) => dispatch(DBActions.deleteInventory(id)),
+        updateInventory: (obj) => dispatch(DBActions.updateInventory(obj))
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Products);

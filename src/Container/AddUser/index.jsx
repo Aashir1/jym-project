@@ -66,13 +66,13 @@ class AddUser extends Component {
         }
     }
     componentWillReceiveProps(nextProps) {
-        console.log('componentWillrecive: ', nextProps);
-        let { dataObj, inventory, currentUser } = this.props;
+        // console.log('componentWillrecive: ', nextProps);
+        let { dataObj, inventory, currentUser } = nextProps;
         let allUsers = [];
         if (this.props !== nextProps) {
             for (let i in dataObj) {
                 if (dataObj[i].type == 'member') {
-                    console.log(' incomponentWillrecive: ', nextProps);
+                    console.log(' incomponentWillrecive dataObj[i]: ', dataObj[i]);
                     allUsers.push(dataObj[i]);
                 }
             }
@@ -80,33 +80,57 @@ class AddUser extends Component {
         }
     }
     addUser = () => {
-        let { dataObj, inventory, currentUser } = this.props;
-        let { firstName, lastName, rfid_tag, imageUrl, member_id } = this.state;
-        if (firstName.trim() !== '' && lastName.trim() !== '' && rfid_tag.trim() !== '') {
-            if (dataObj[rfid_tag] == undefined) {
-                dataObj[rfid_tag] = {
-                    type: 'member',
-                    name: `${firstName} ${lastName}`,
-                    rfid_tag: rfid_tag,
-                    member_id: member_id.trim() == "" ? rfid_tag : member_id,
-                    imageUrl,
-                    current: { lockerId: '', product: [], assignData: "", checkoutDate: "" },
+        let enterKey = prompt('Enter Your key: ');
+        if (enterKey === this.props.privateKey) {
+            let { dataObj, inventory, currentUser, localDBFlag } = this.props;
+            let { firstName, lastName, rfid_tag, imageUrl, member_id } = this.state;
+            if (firstName.trim() !== '' && lastName.trim() !== '' && rfid_tag.trim() !== '') {
+                if (dataObj[rfid_tag] == undefined) {
+                    dataObj[rfid_tag] = {
+                        type: 'member',
+                        firstName,
+                        lastName,
+                        name: `${firstName} ${lastName}`,
+                        rfid_tag: rfid_tag,
+                        member_id: member_id.trim() == "" ? rfid_tag : member_id,
+                        imageUrl: null,
+                        current: { lockerId: '', product: [], assignData: "", checkoutDate: "", uid: '' },
+                    }
+                    //localDBFlag
+                    if (localDBFlag) {
+                        this.props.addUser(dataObj[rfid_tag]);
+                        this.setState({ firstName: '', lastName: '', rfid_tag: '', imageUrl: null, member_id: '' })
+                    }
+                    if (!localDBFlag) {
+                        this.props.setDataObj(dataObj);
+                        this.setState({ allUsers: [...this.state.allUsers, dataObj[rfid_tag]], firstName: '', lastName: '', rfid_tag: '', imageUrl: null, member_id: '' }, () => {
+                            console.log('this.state.allUsers after adding: ', this.state.allUsers);
+                        })
+                    }
+                    console.log('this.state.allUsers before adding: ', this.state.allUsers);
+                } else {
+                    alert('This ID already in use');
                 }
-                this.props.setDataObj(dataObj);
-                console.log('this.state.allUsers before adding: ', this.state.allUsers);
-                this.setState({ allUsers: [...this.state.allUsers, dataObj[rfid_tag]], firstName: '', lastName: '', rfid_tag: '', imageUrl: null, member_id: '' }, () => {
-                    console.log('this.state.allUsers after adding: ', this.state.allUsers);
-                })
             } else {
-                alert('This ID already in use');
+                alert('data badly formated');
             }
-        } else {
-            alert('data badly formated');
         }
+        this.setState({ firstName: '', lastName: '', rfid_tag: '', imageUrl: null, member_id: '' });
+        enterKey = "";
     }
 
-    deleteItem = (id) => {
-        this.props.deleteItem({ cat: 'user', id })
+    deleteItem = (id, databaseId = undefined) => {
+        let enterKey = prompt('Enter Your key: ');
+        console.log('from deleteItem func id: ', id);
+        console.log('from deleteItem func databaseid: ', databaseId);
+        if (enterKey === this.props.privateKey) {
+            if (this.props.localDBFlag && databaseId) {
+                this.props.deleteUser(databaseId)
+            }
+            if (!this.props.localDBFlag) {
+                this.props.deleteItem({ cat: 'user', id })
+            }
+        }
     }
 
     render() {
@@ -202,7 +226,12 @@ class AddUser extends Component {
                                                 {data.rfid_tag}
                                             </div>
                                             <div style={{ marginLeft: '15px' }}>
-                                                <Delete onClick={() => this.deleteItem(data.rfid_tag)} style={{ cursor: 'pointer', color: '#c0392b' }} />
+                                                {
+                                                    this.props.localDBFlag ?
+                                                        <Delete onClick={() => this.deleteItem(data.rfid_tag, data.id)} style={{ cursor: 'pointer', color: '#c0392b' }} />
+                                                        :
+                                                        <Delete onClick={() => this.deleteItem(data.rfid_tag)} style={{ cursor: 'pointer', color: '#c0392b' }} />
+                                                }
                                             </div>
                                         </div>
                                     </div>
@@ -222,7 +251,8 @@ let mapStateToProps = (state) => {
         dataObj: state.dbReducer.dataObj,
         inventory: state.dbReducer.inventory,
         currentUser: state.dbReducer.currentUser,
-        localDBFlag: state.dbReducer.localDBFlag
+        localDBFlag: state.dbReducer.localDBFlag,
+        privateKey: state.dbReducer.privateKey
     }
 }
 let mapDispatchToProps = (dispatch) => {
@@ -230,7 +260,9 @@ let mapDispatchToProps = (dispatch) => {
         setCurrentUser: (obj) => dispatch(DBActions.setCurrentUser(obj)),
         setDataObj: (obj) => dispatch(DBActions.setDataObj(obj)),
         setInventory: (obj) => dispatch(DBActions.setInventory(obj)),
-        deleteItem: (obj) => dispatch(DBActions.deleteItem(obj))
+        deleteItem: (obj) => dispatch(DBActions.deleteItem(obj)),
+        addUser: (obj) => dispatch(DBActions.addUser(obj)),
+        deleteUser: (id) => dispatch(DBActions.deleteUser(id))
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(AddUser);

@@ -64,46 +64,65 @@ class Lockers extends Component {
             if (dataObj) {
                 lockersArray = Object.values(dataObj).filter((data) => data.type == 'locker');
             }
-            this.setState({ lockersArray: lockersArray });
+            this.setState({ lockersArray: lockersArray, lockers: this.lockers });
         }
     }
     addLocker = () => {
-        let { lockerName, lockers, lockerID } = this.state;
-        let { dataObj, currentUser, inventory } = this.props;
+        let enterkey = prompt('Enter Your key: ');
+        if (enterkey === this.props.privateKey) {
+            let { lockerName, lockers, lockerID } = this.state;
+            let { dataObj, currentUser, inventory } = this.props;
 
-        // lockerID = Number(lockerID);
-        let flag = false;
-        if (lockerName.trim() !== "") {
-            //tackle this when working on creating lockers
-            let lockerArray = Object.keys(lockers);
-            for (let i in lockers) {
-                lockerName = lockerName.charAt(0).toUpperCase() + lockerName.slice(1).toLowerCase();
-                if (lockers[i].name == lockerName || dataObj[lockerID] !== undefined) {
-                    alert('Locker Already Exist');
-                    flag = true;
-                    return;
+            // lockerID = Number(lockerID);
+            let flag = false;
+            if (lockerName.trim() !== "") {
+                //tackle this when working on creating lockers
+                let lockerArray = Object.keys(lockers);
+                for (let i in lockers) {
+                    lockerName = lockerName.charAt(0).toUpperCase() + lockerName.slice(1).toLowerCase();
+                    if (lockers[i].name == lockerName || dataObj[lockerID] !== undefined) {
+                        // console.log('lockerName: ', lockers[i].name);
+                        // console.log('dataobj[lockerID]: ', dataObj[lockerID]);
+                        alert('Locker Already Exist');
+                        flag = true;
+                        return;
+                    }
                 }
+                if (!flag) {
+                    lockerName = lockerName.charAt(0).toUpperCase() + lockerName.slice(1).toLowerCase();
+                    dataObj[lockerID] = {
+                        type: 'locker', name: lockerName, rfid_tag: lockerID, current: { checkDate: "", checkout: "", uid: "" }, isAvailable: true
+                    };
+                    if (this.props.localDBFlag) {
+                        this.props.addLocker(dataObj[lockerID]);
+                        this.setState({ lockerID: '', lockerName: '' });
+                    }
+                    if (!this.props.localDBFlag) {
+                        this.props.setDataObj(dataObj);
+                        this.setState({ lockerID: '', lockerName: '', lockersArray: [...this.state.lockersArray, { type: 'locker', name: lockerName, rfid_tag: lockerID, current: { checkDate: "", checkout: "", uid: "" }, history: [], isAvailable: true }] }, () => {
+                            console.log('lockers Array', this.state.lockersArray)
+                        });
+                    }
+                }
+            } else {
+                alert('Data Badly formated')
             }
-            if (!flag) {
-                lockerName = lockerName.charAt(0).toUpperCase() + lockerName.slice(1).toLowerCase();
-                dataObj[lockerID] = {
-                    type: 'locker', name: lockerName, rfid_tag: lockerID, current: { checkDate: "", checkout: "", uid: "" }, history: [], isAvailable: true
-                };
-                this.props.setDataObj(dataObj);
-                this.setState({ lockerID: '', lockerName: '', lockersArray: [...this.state.lockersArray, { type: 'locker', name: lockerName, rfid_tag: lockerID, current: { checkDate: "", checkout: "", uid: "" }, history: [], isAvailable: true }] }, () => {
-                    console.log('lockers Array', this.state.lockersArray)
-                });
-            }
-        } else {
-            alert('Data Badly formated')
+            console.log(state.lockers);
         }
-        console.log(state.lockers);
     }
 
 
-    deleteItem = (id) => {
-        console.log('its work');
-        this.props.deleteItem({ cal: 'locker', id });
+    deleteItem = (id, databaseId = undefined) => {
+        let enterkey = prompt('Enter your key: ');
+        if (enterkey === this.props.privateKey) {
+            if (this.props.localDBFlag) {
+                this.props.deleteLocker(databaseId);
+            }
+            if (!this.props.localDBFlag) {
+                console.log('its work');
+                this.props.deleteItem({ cal: 'locker', id });
+            }
+        }
     }
     render() {
         console.log('state: ', state.inventory);
@@ -207,8 +226,13 @@ class Lockers extends Component {
                                                 <div style={{
 
                                                 }}>
-                                                    <IconButton onClick={() => this.deleteItem(data.rfid_tag)}>
-                                                        <Delete style={{ cursor: 'pointer', color: '#c0392b' }} />
+                                                    <IconButton >
+                                                        {
+                                                            this.props.localDBFlag ?
+                                                                <Delete style={{ cursor: 'pointer', color: '#c0392b' }} onClick={() => this.deleteItem(data.rfid_tag, data.id)} />
+                                                                :
+                                                                <Delete style={{ cursor: 'pointer', color: '#c0392b' }} onClick={() => this.deleteItem(data.rfid_tag)} />
+                                                        }
                                                     </IconButton>
                                                 </div>
                                             </div>
@@ -229,7 +253,9 @@ let mapStateToProps = (state) => {
         state,
         dataObj: state.dbReducer.dataObj,
         inventory: state.dbReducer.inventory,
-        currentUser: state.dbReducer.currentUser
+        currentUser: state.dbReducer.currentUser,
+        localDBFlag: state.dbReducer.localDBFlag,
+        privateKey: state.dbReducer.privateKey
     }
 }
 let mapDispatchToProps = (dispatch) => {
@@ -237,7 +263,9 @@ let mapDispatchToProps = (dispatch) => {
         setCurrentUser: (obj) => dispatch(DBActions.setCurrentUser(obj)),
         setDataObj: (obj) => dispatch(DBActions.setDataObj(obj)),
         setInventory: (obj) => dispatch(DBActions.setInventory(obj)),
-        deleteItem: (id) => dispatch(DBActions.deleteItem(id))
+        deleteItem: (id) => dispatch(DBActions.deleteItem(id)),
+        addLocker: (obj) => dispatch(DBActions.addLocker(obj)),
+        deleteLocker: (id) => dispatch(DBActions.deleteLocker(id))
     }
 }
 

@@ -14,7 +14,7 @@ class IdScreen extends Component {
         this.state = {
             userInput: "",
             isRFID: false,
-            localDB: false,
+            localDB: this.props.localDBFlag,
         }
         localStorage.setItem('isRFID', JSON.stringify(false));
         // this.timer = setInterval(function () {
@@ -28,8 +28,10 @@ class IdScreen extends Component {
         // }, 1000);
     }
     componentDidMount() {
-        // this.props.loadData();
-
+        if (this.props.localDBFlag) {
+            this.props.loadLocalDBData();
+        }
+        // this.props.loadData({ users, lockers });
     }
     componentWillUnmount() {
         clearInterval(this.timer);
@@ -83,6 +85,14 @@ class IdScreen extends Component {
                         rfid_tag: data.rfid_tag,
                         name: data.name,
                         imageUrl: data.imageUrl,
+                        current: {
+                            checkDate: '',
+                            assignDate: '',
+                            product: [],
+                            lockerId: "",
+                            checkoutDate: "",
+                            uid: ""
+                        },
                         userData: [],
                         lockerId: ''
                     }
@@ -91,7 +101,7 @@ class IdScreen extends Component {
                 }
                 if (data.type == 'locker') {
                     let getLockerCurrentInfo = dataObj[userInput].current;
-                    let getUserCurrentInfo = dataObj[userInput].current;
+                    let getUserCurrentInfo = dataObj[dataObj[userInput].current.uid].current;
                     let historyObjUser = {}, historyObjLocker = {}, obj = {};
                     // let lockerHistory = dataObj[userInput].history;
                     // let userInfoHistory = [];
@@ -102,35 +112,54 @@ class IdScreen extends Component {
                         alert('this locker is empty');
                         return;
                     }
-                    historyObjUser = Object.assign({}, getLockerCurrentInfo, { checkoutDate: new Date(), checkout: 'done' });
-                    historyObjLocker = Object.assign({}, getUserCurrentInfo, { checkoutDate: new Date(), checkout: 'done' });
+                    console.log('HHHHHHHHHHHHHHHHHHistory ObjUser: ', getUserCurrentInfo);
+                    console.log('HHHHHHHHHHHHHHHHHHistory ObjLocker: ', getLockerCurrentInfo);
+                    historyObjUser = Object.assign({}, getLockerCurrentInfo, { checkDate: getUserCurrentInfo.assignDate, assignDate: getUserCurrentInfo.assignDate, checkoutDate: Date.now(), checkout: 'done' });
+                    historyObjLocker = Object.assign({}, getUserCurrentInfo, { checkoutDate: Date.now(), checkout: 'done' });
+
+
                     obj = {
                         historyObjUser,
                         historyObjLocker,
                         memberId: dataObj[userInput].current.uid,
                         lockerId: dataObj[userInput].rfid_tag
                     }
+                    obj.historyObjLocker['uid'] = obj.historyObjUser.uid;
+                    obj.historyObjUser['lockerId'] = obj.historyObjLocker.lockerId;
 
                     if (getLockerCurrentInfo.uid) {
                         if (getLockerCurrentInfo.product) {
                             getLockerCurrentInfo.product.forEach((data, i) => {
                                 console.log(data);
-                                if (!data.consumeable) {
-                                    inventory[data.rfid_tag].qty += data.qty;
+                                if (!data.consumeable) {//start from there
+                                    if (inventory[data.rfid_tag]) {
+                                        inventory[data.rfid_tag].qty = parseInt(inventory[data.rfid_tag].qty);
+                                        inventory[data.rfid_tag].qty += data.qty;
+                                        this.props.updateInventory({ id: inventory[data.rfid_tag].id, data: inventory[data.rfid_tag] });
+                                    }
                                 }
                             })
                         }
                         alert(" Checkout of " + dataObj[userInput].name + " is Done");
                         dataObj[dataObj[userInput].current.uid].current = { lockerId: '', product: [], assignDate: "", checkoutDate: "" }
                         dataObj[userInput].isAvailable = true;
-                        dataObj[userInput].current = { uid: '', product: [], checkDate: "", checkout: "" };
                         currentUser = null;
                         this.props.setCurrentUser(null);
                         this.setState({ userInput: '' });
                     }
-                    this.props.setInventory(inventory);
-                    this.props.setDataObj(dataObj);
-                    this.props.pushHistory(obj);
+                    if (this.props.localDBFlag) {//if localDB
+                        this.props.updateUser({ id: dataObj[dataObj[userInput].current.uid].id, data: dataObj[dataObj[userInput].current.uid] });
+                        dataObj[userInput].current = { uid: '', product: [], checkDate: "", checkout: "" };
+                        this.props.updateLocker({ id: dataObj[userInput].id, data: dataObj[userInput] });
+                        this.props.addHistoryLocker(obj.historyObjLocker);
+                        this.props.addHistoryUser(obj.historyObjUser);
+                    }
+                    if (!this.props.localDBFlag) {//if firebaseDB
+                        dataObj[userInput].current = { uid: '', product: [], checkDate: "", checkout: "" };
+                        this.props.setInventory(inventory);
+                        this.props.setDataObj(dataObj);
+                        this.props.pushHistory(obj);
+                    }
 
                     // const pushId = firebase.database().ref(`member-history/${memberId}/`).push().key
 
@@ -148,12 +177,18 @@ class IdScreen extends Component {
     }
 
     syncData = () => {
-        console.log('lastSync: ', this.props.lastSync)
+        console.log('lastSync: ', this.props.lastSync);
+        let { dataObj } = this.props, tempArray = [];
+        console.log('existed find: ', dataObj['12289373']);
+        for (let i in dataObj) {
+            if (dataObj[i].type === 'member') {
+                tempArray.push(dataObj[i].member_id);
+
+            }
+        }
+        localStorage.setItem('tempArray', JSON.stringify(tempArray));
         if (this.props.lastSync)
             this.props.syncData(this.props.lastSync)
-        // else{
-        //     alert('')
-        // }
     }
     handleChange = event => {
         this.setState({ [event.target.name]: event.target.value });
@@ -162,10 +197,10 @@ class IdScreen extends Component {
     };
     handleToggle = name => event => {
         this.setState({ [name]: event.target.checked }, () => {
-            this.props.setLocalDBFlag(this.state.localDB);
-            if(this.state.localDB){
-                this.props.loadLocalDBData();
-            }
+            // this.props.setLocalDBFlag(this.state.localDB);
+            // if (this.state.localDB) {
+            //     this.props.loadLocalDBData();
+            // }
         });
     };
     render() {
@@ -344,14 +379,19 @@ let mapStateToProps = (state) => {
 
 let mapDispatchToProps = (dispatch) => {
     return {
-        loadData: () => dispatch(DBActions.loadData()),
+        // loadData: (obj) => dispatch(DBActions.loadData(obj)),
         setCurrentUser: (obj) => dispatch(DBActions.setCurrentUser(obj)),
         setDataObj: (obj) => dispatch(DBActions.setDataObj(obj)),
         setInventory: (obj) => dispatch(DBActions.setInventory(obj)),
         pushHistory: (obj) => dispatch(DBActions.pushHistory(obj)),
         syncData: (lastSync) => dispatch(DBActions.syncData(lastSync)),
         setLocalDBFlag: (flag) => dispatch(DBActions.setLocalDBFlag(flag)),
-        loadLocalDBData: () => dispatch(DBActions.loadLocalDBData())
+        loadLocalDBData: () => dispatch(DBActions.loadLocalDBData()),
+        updateInventory: (obj) => dispatch(DBActions.updateInventory(obj)),
+        updateUser: (obj) => dispatch(DBActions.updateUser(obj)),
+        updateLocker: (obj) => dispatch(DBActions.updateLocker(obj)),
+        addHistoryUser: (obj) => dispatch(DBActions.addHistoryUser(obj)),
+        addHistoryLocker: (obj) => dispatch(DBActions.addHistoryLocker(obj))
     }
 }
 
