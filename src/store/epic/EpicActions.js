@@ -7,7 +7,22 @@ import actionType from '../actionTypes';
 import HttpService from '../../Services/http';
 
 export default class EpicActions {
-
+    static addManyUsers($action) {
+        return $action.ofType(actionTypes.ADD_MANY_USERS_PROGRESS)
+            .switchMap(({ payload }) => {
+                return HttpService.post('http://localhost:3005/addManyLockers', payload)//make call on node server and complete history work
+                    .pluck('response')
+                    .map(({ data }) => {
+                        console.log('userInserted Done: ', data);
+                        return {
+                            type: "null"
+                        }
+                    })
+            })
+            .catch(err => {
+                return Observable.of({ type: actionTypes.ADD_MANY_USERS_FAIL, payload: err.message });
+            })
+    }
     static addHistoryUser($action) {
         return $action.ofType(actionTypes.ADD_HISTORY_USER_PROGRESS)
             .switchMap(({ payload }) => {
@@ -463,8 +478,8 @@ export default class EpicActions {
                 })
                     .pluck('response')
                     .map(data => {
-                        console.log('data: ', data);
-                        data.docs.forEach(data => {
+                        console.log('dataaaaaaaaaaaaaaaa: ', data.docs[0].membersArray);
+                        data.docs[0].membersArray.forEach(data => {
                             dataObj[data.rfid_tag] = {
                                 current: data.current,
                                 isAvailable: data.isAvailable,

@@ -36,7 +36,8 @@ export const rootEpic = combineEpics(
     EpicActions.addHistoryLocker,
     EpicActions.addHistoryUser,
     EpicActions.loadLocalDataDBLastSync,
-    EpicActions.setLastSync
+    EpicActions.setLastSync,
+    EpicActions.addManyUsers
 );
 
 const epicMiddleware = createEpicMiddleware(rootEpic);

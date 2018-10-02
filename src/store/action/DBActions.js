@@ -2,6 +2,12 @@ import actionTypes from '../actionTypes';
 
 
 class DBActions {
+    static addManyUsers(obj) {
+        return {
+            type: actionTypes.ADD_MANY_USERS_PROGRESS,
+            payload: obj
+        }
+    }
     static addHistoryUser(obj) {
         return {
             type: actionTypes.ADD_HISTORY_USER_PROGRESS,

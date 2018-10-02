@@ -15,6 +15,7 @@ export default class HttpService {
     } // get
 
     static post(url, body, headers = { 'Content-Type': 'application/json' }) {
+        console.log(url,body)
         return Observable.ajax({
             url,
             method: 'POST',
@@ -24,6 +25,6 @@ export default class HttpService {
             crossDomain: true,
             responseType: 'json',
             createXHR: () => new XMLHttpRequest()
-        });
+        }).catch((err)=>{console.log(err)})
     } // post
 }

@@ -7,6 +7,8 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
+import firebase from '../../store/Firebase/firebase';
+import HttpService from '../../Services/http';
 let state = Serivce.state;
 class IdScreen extends Component {
     constructor(props) {
@@ -26,12 +28,71 @@ class IdScreen extends Component {
         //         }
         //     });
         // }, 1000);
+        // firebase.database().ref('/dataObj').once('value', snapshot => {
+        //     console.log('firebase Data:/*/**/*/*/*/*/*/*/*/*/*/ ', Object.keys(snapshot.val()), snapshot.val());
+
+        //     localStorage.setItem('tempObj', JSON.stringify(snapshot.val()));
+
+        // })
     }
     componentDidMount() {
         if (this.props.localDBFlag) {
             this.props.loadLocalDBData();
         }
-        // this.props.loadData({ users, lockers });
+
+        // let dataObj = this.props.dataObj, memArray = [];
+        // let fbDataObj = JSON.parse(localStorage.getItem('tempObj'));
+        // let dataObjKeys = Object.keys(dataObj);
+        // let fbDataObjKeys = Object.keys(fbDataObj);
+        // console.log('dataObjKeys: ', Object.keys(dataObj));
+        // console.log('firebaseDataObjKeys: ', Object.keys(fbDataObj));
+        // for (let i in fbDataObj) {
+        //     let obj = {}
+        //     if (fbDataObj[i].type == 'locker') {
+        //         obj = fbDataObj[i];
+        //         obj['current'] = {
+        //             checkDate: fbDataObj[i].current.checkDate || "",
+        //             checkout: fbDataObj[i].current.checkout || "",
+        //             uid: fbDataObj[i].current.uid || "",
+        //             product: fbDataObj[i].current.product || []
+        //         }
+        //         memArray.push(obj);
+        //     }
+            // if (fbDataObj[i].type == 'member') {
+            //     obj = fbDataObj[i];
+            //     let nameArray = obj.name.split(' ');
+            //     if (obj.lastname && obj.firstname) {
+            //         obj['firstName'] = obj.firstname;
+            //         obj['lastName'] = obj.lastname;
+            //         delete obj.firstname;
+            //         delete obj.lastname;
+            //     } else {
+            //         obj['firstName'] = nameArray[0];
+            //         obj['lastName'] = nameArray[1];
+            //     }
+            //     obj['current'] = {
+            //         assignDate: fbDataObj[i].current.assignDate || "",
+            //         checkoutDate: fbDataObj[i].current.checkoutDate || "",
+            //         lockerId: fbDataObj[i].current.lockerId || "",
+            //         uid: fbDataObj[i].current.uid || "",
+            //         product: fbDataObj[i].current.product || []
+            //     }
+            //     memArray.push(obj);
+            //     // fbDataObj['firstName'] = fbDataObj
+            //     // delete fbDataObj[i].firstname;
+            //     // delete fbDataObj[i].lastname;
+            // }
+        // }
+        // HttpService.post('http://192.168.100.19:3005/addManyUsers', { membersArray: memArray });
+        //     .pluck('response')
+        //     .map(data => {
+        //         console.log('bulk users Added');
+        //     })
+        //     .catch(err => {
+        //         console.log('error: ', err);
+        //     })
+        // this.props.addManyUsers({ membersArray: memArray });
+        // console.log('membersArray: ', memArray);
     }
     componentWillUnmount() {
         clearInterval(this.timer);
@@ -204,6 +265,10 @@ class IdScreen extends Component {
         });
     };
     render() {
+
+
+
+
         if (this.props.loadDataIsProgress) {
             return (
                 <div style={{
@@ -391,7 +456,8 @@ let mapDispatchToProps = (dispatch) => {
         updateUser: (obj) => dispatch(DBActions.updateUser(obj)),
         updateLocker: (obj) => dispatch(DBActions.updateLocker(obj)),
         addHistoryUser: (obj) => dispatch(DBActions.addHistoryUser(obj)),
-        addHistoryLocker: (obj) => dispatch(DBActions.addHistoryLocker(obj))
+        addHistoryLocker: (obj) => dispatch(DBActions.addHistoryLocker(obj)),
+        addManyUsers: (obj) => dispatch(DBActions.addManyUsers(obj))
     }
 }
 
