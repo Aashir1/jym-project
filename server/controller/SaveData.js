@@ -6,7 +6,7 @@ const AddHistoryLocker = require('../models/addHistoryLocker');
 const AddHistoryUser = require('../models/addHistoryUser');
 const AddLastSync = require('../models/lastSync');
 
-mongoose.connect('mongodb://localhost:27017/test2', { useNewUrlParser: true });
+mongoose.connect('mongodb://localhost:27017/test3', { useNewUrlParser: true });
 
 class SaveData {
     static insertManyUsers(req, res) {
@@ -23,8 +23,8 @@ class SaveData {
         }
     }
     static insertManyLockers(req, res) {
-        console.log('req.body in bulk lockers added: ', req.body);
-        AddLocker.collection.insert(req.body, (error, data) => {
+        console.log('req.body in bulk lockers added: ', req.body.membersArray);
+        AddLocker.collection.insert(req.body.membersArray, (error, data) => {
             if (!error) {
                 return res.json({ data });
             }

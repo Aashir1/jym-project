@@ -66,7 +66,7 @@ class Products extends Component {
             // console.log('productId : ', productId);
             // console.log('consumeable : ', consumeable);
             // console.log('flag : ', productName.trim() !== "" && productQty.trim() !== "" && (typeof consumeable === 'boolean') && productId > 0);
-            if (productName.trim() !== "" && productQty.trim() !== "" && (typeof consumeable === 'boolean') && productId > 0) {
+            if (productName.trim() !== "" && productQty.trim() !== "" && parseInt(productQty) > 0 && (typeof consumeable === 'boolean') && productId > 0) {
                 let inventoryKeyArray = Object.keys(inventory);
                 for (let i in inventory) {
                     productName = productName.charAt(0).toUpperCase() + productName.slice(1).toLowerCase();

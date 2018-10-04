@@ -23,11 +23,12 @@ app.get('/', (req, res) => {
 
 
 app.post('/addManyUsers', (req, res) => {
-    console.log('from Many Users: ', req.body)
+    // console.log('from Many Users: ', req.body)
     SaveData.insertManyUsers(req, res);
 });
 
 app.post('/addManyLockers', (req, res) => {
+    console.log('all lockers: ', req.body.membersArray);
     SaveData.insertManyLockers(req, res);
 })
 

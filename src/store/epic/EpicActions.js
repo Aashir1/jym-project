@@ -10,7 +10,7 @@ export default class EpicActions {
     static addManyUsers($action) {
         return $action.ofType(actionTypes.ADD_MANY_USERS_PROGRESS)
             .switchMap(({ payload }) => {
-                return HttpService.post('http://localhost:3005/addManyLockers', payload)//make call on node server and complete history work
+                return HttpService.post('http://localhost:3005/addManyUsers', payload)//make call on node server and complete history work
                     .pluck('response')
                     .map(({ data }) => {
                         console.log('userInserted Done: ', data);
@@ -478,8 +478,8 @@ export default class EpicActions {
                 })
                     .pluck('response')
                     .map(data => {
-                        console.log('dataaaaaaaaaaaaaaaa: ', data.docs[0].membersArray);
-                        data.docs[0].membersArray.forEach(data => {
+                        console.log('dataaaaaaaaaaaaaaaa: ', data);
+                        data.docs.forEach(data => {
                             dataObj[data.rfid_tag] = {
                                 current: data.current,
                                 isAvailable: data.isAvailable,

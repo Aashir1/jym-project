@@ -48,40 +48,40 @@ class IdScreen extends Component {
         // console.log('firebaseDataObjKeys: ', Object.keys(fbDataObj));
         // for (let i in fbDataObj) {
         //     let obj = {}
-        //     if (fbDataObj[i].type == 'locker') {
-        //         obj = fbDataObj[i];
-        //         obj['current'] = {
-        //             checkDate: fbDataObj[i].current.checkDate || "",
-        //             checkout: fbDataObj[i].current.checkout || "",
-        //             uid: fbDataObj[i].current.uid || "",
-        //             product: fbDataObj[i].current.product || []
-        //         }
-        //         memArray.push(obj);
+        // if (fbDataObj[i].type == 'locker') {
+        //     obj = fbDataObj[i];
+        //     obj['current'] = {
+        //         checkDate: fbDataObj[i].current.checkDate || "",
+        //         checkout: fbDataObj[i].current.checkout || "",
+        //         uid: fbDataObj[i].current.uid || "",
+        //         product: fbDataObj[i].current.product || []
         //     }
-            // if (fbDataObj[i].type == 'member') {
-            //     obj = fbDataObj[i];
-            //     let nameArray = obj.name.split(' ');
-            //     if (obj.lastname && obj.firstname) {
-            //         obj['firstName'] = obj.firstname;
-            //         obj['lastName'] = obj.lastname;
-            //         delete obj.firstname;
-            //         delete obj.lastname;
-            //     } else {
-            //         obj['firstName'] = nameArray[0];
-            //         obj['lastName'] = nameArray[1];
-            //     }
-            //     obj['current'] = {
-            //         assignDate: fbDataObj[i].current.assignDate || "",
-            //         checkoutDate: fbDataObj[i].current.checkoutDate || "",
-            //         lockerId: fbDataObj[i].current.lockerId || "",
-            //         uid: fbDataObj[i].current.uid || "",
-            //         product: fbDataObj[i].current.product || []
-            //     }
-            //     memArray.push(obj);
-            //     // fbDataObj['firstName'] = fbDataObj
-            //     // delete fbDataObj[i].firstname;
-            //     // delete fbDataObj[i].lastname;
-            // }
+        //     memArray.push(obj);
+        // }
+        // if (fbDataObj[i].type == 'member') {
+        //     obj = fbDataObj[i];
+        //     let nameArray = obj.name.split(' ');
+        //     if (obj.lastname && obj.firstname) {
+        //         obj['firstName'] = obj.firstname;
+        //         obj['lastName'] = obj.lastname;
+        //         delete obj.firstname;
+        //         delete obj.lastname;
+        //     } else {
+        //         obj['firstName'] = nameArray[0];
+        //         obj['lastName'] = nameArray[1];
+        //     }
+        //     obj['current'] = {
+        //         assignDate: fbDataObj[i].current.assignDate || "",
+        //         checkoutDate: fbDataObj[i].current.checkoutDate || "",
+        //         lockerId: fbDataObj[i].current.lockerId || "",
+        //         uid: fbDataObj[i].current.uid || "",
+        //         product: fbDataObj[i].current.product || []
+        //     }
+        //     memArray.push(obj);
+        // fbDataObj['firstName'] = fbDataObj
+        // delete fbDataObj[i].firstname;
+        // delete fbDataObj[i].lastname;
+        // }
         // }
         // HttpService.post('http://192.168.100.19:3005/addManyUsers', { membersArray: memArray });
         //     .pluck('response')
@@ -91,6 +91,7 @@ class IdScreen extends Component {
         //     .catch(err => {
         //         console.log('error: ', err);
         //     })
+        // }
         // this.props.addManyUsers({ membersArray: memArray });
         // console.log('membersArray: ', memArray);
     }
@@ -160,7 +161,8 @@ class IdScreen extends Component {
                     this.props.setCurrentUser(currentUser);
                     this.props.history.replace('home');
                 }
-                if (data.type == 'locker') {
+                if (data.type == 'locker' && dataObj[dataObj[userInput].current.uid]) {
+
                     let getLockerCurrentInfo = dataObj[userInput].current;
                     let getUserCurrentInfo = dataObj[dataObj[userInput].current.uid].current;
                     let historyObjUser = {}, historyObjLocker = {}, obj = {};
