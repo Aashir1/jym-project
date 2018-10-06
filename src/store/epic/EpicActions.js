@@ -383,10 +383,13 @@ export default class EpicActions {
                         console.log('TTTTTTTTTTempArray: ', tempArray)
                         console.log('xdata: ', xdata);
                         xdata.result.forEach((data, i) => {
-                            if (tempArray.indexOf(data.member_id.toString()) === -1) {
+                            if (tempArray.indexOf(data.member_id.toString()) == -1) {
+                                console.log('not founded object: ', data)
                                 if (data.rfid_tag) {
                                     data['type'] = 'member';
                                     data['name'] = `${data.firstname} ${data.lastname}`
+                                    data['firstName'] = data.firstname;
+                                    data['lastName'] = data.lastname;
                                     data[`current`] = { assignDate: "", checkoutDate: "", lockerId: "", product: [] };
                                     // multipath[`dataObj/${data.rfid_tag}/`] = data;
                                     multipathForStore[data.rfid_tag] = data;
@@ -394,7 +397,9 @@ export default class EpicActions {
                                     let id = randomString();
                                     data['rfid_tag'] = data.member_id;
                                     data['type'] = 'member';
-                                    data['name'] = `${data.firstname} ${data.lastname}`
+                                    data['name'] = `${data.firstname} ${data.lastname}`;
+                                    data['firstName'] = data.firstname;
+                                    data['lastName'] = data.lastname;
                                     data[`current`] = { assignDate: "", checkoutDate: "", lockerId: "", product: [] };
                                     // multipath[`dataObj/${data.member_id}/`] = data;
                                     multipathForStore[data.member_id] = data;
@@ -406,18 +411,26 @@ export default class EpicActions {
                     }).switchMap((data) => {
                         console.log('data: ', multipathForStore);
                         let membersArray = Object.values(multipathForStore);
+                        // membersArray = membersArray.slice(0, 150)
                         console.log('membersArray: ', membersArray);
                         return HttpService.post(`http://localhost:3005/addManyUsers`, { membersArray })
-                            // .pluck('response')
-                            .map((data) => {
-                                console.log('api users: ', data);
+                            .pluck('response')
+                            .map((res) => {
+                                console.log('response: ', res)
+                                if (res.data) {
+                                console.log('api users: ', res.data.ops);
                                 let obj = {};
-                                data.response.data.ops[0].membersArray.forEach(data => {
+                                res.data.ops.forEach(data => {
                                     obj[data.rfid_tag] = data
                                 })
                                 return {
                                     type: actionTypes.SYNC_DATA_SUCCEED,
                                     payload: obj
+                                }
+                                } else {
+                                    return {
+                                        type: actionTypes.MAKE_LOADER_FALSE
+                                    }
                                 }
                             });
                     })

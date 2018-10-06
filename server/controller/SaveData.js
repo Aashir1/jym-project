@@ -5,7 +5,7 @@ const AddInventory = require('../models/addInventory');
 const AddHistoryLocker = require('../models/addHistoryLocker');
 const AddHistoryUser = require('../models/addHistoryUser');
 const AddLastSync = require('../models/lastSync');
-
+//replace with test3
 mongoose.connect('mongodb://localhost:27017/test3', { useNewUrlParser: true });
 
 class SaveData {
@@ -85,8 +85,9 @@ class SaveData {
         });
     }
     static addLastSync(req, res) {
+        let dateRef = new Date();
         var query = {},
-            update = { lastSync: Date.now() },
+            update = { lastSync: dateRef.setDate(dateRef.getDate() - 4) },
             options = { upsert: true, new: true, setDefaultsOnInsert: true };
 
         AddLastSync.findOneAndUpdate(query, update, options, (error, data) => {

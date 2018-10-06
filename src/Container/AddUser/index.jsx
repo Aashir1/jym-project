@@ -120,10 +120,11 @@ class AddUser extends Component {
     }
 
     deleteItem = (id, databaseId = undefined) => {
-        let enterKey = prompt('Enter Your key: ');
+        let enterKey = ""
+        // prompt('Enter Your key: ');
         console.log('from deleteItem func id: ', id);
         console.log('from deleteItem func databaseid: ', databaseId);
-        if (enterKey === this.props.privateKey) {
+        if (true || enterKey === this.props.privateKey) {
             if (this.props.localDBFlag && databaseId) {
                 this.props.deleteUser(databaseId)
             }

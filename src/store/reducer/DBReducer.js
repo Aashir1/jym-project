@@ -63,6 +63,9 @@ function DBReducer(state = intialState, action) {
         case actionTypes.SYNC_DATA_FAIL:
             return Object.assign({}, state, { loadDataIsProgress: false, errorMessage: action.payload });
 
+        case actionTypes.MAKE_LOADER_FALSE:
+            return Object.assign({}, state, { loadDataIsProgress: false });
+
 
         case actionTypes.DELETE_LOCKER_PROGRESS:
             let { dataObj, inventory } = state;

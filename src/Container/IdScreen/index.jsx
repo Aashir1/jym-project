@@ -245,8 +245,7 @@ class IdScreen extends Component {
         console.log('existed find: ', dataObj['12289373']);
         for (let i in dataObj) {
             if (dataObj[i].type === 'member') {
-                tempArray.push(dataObj[i].member_id);
-
+                tempArray.push(dataObj[i].member_id.toString());
             }
         }
         localStorage.setItem('tempArray', JSON.stringify(tempArray));
